@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CD89B5551A75F11300F983AB /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CD89B5531A75F11300F983AB /* Main_iPad.storyboard */; };
+		CD89B5591A75F15A00F983AB /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD89B5581A75F15A00F983AB /* CameraViewController.m */; };
+		CD89B55F1A7612A700F983AB /* CameraSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = CD89B55E1A7612A700F983AB /* CameraSettings.m */; };
 		CDEFA6AD1A742417001BC14E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CDEFA6AC1A742417001BC14E /* main.m */; };
 		CDEFA6B01A742417001BC14E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CDEFA6AF1A742417001BC14E /* AppDelegate.m */; };
-		CDEFA6B31A742417001BC14E /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CDEFA6B21A742417001BC14E /* ViewController.m */; };
-		CDEFA6B61A742417001BC14E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CDEFA6B41A742417001BC14E /* Main.storyboard */; };
+		CDEFA6B61A742417001BC14E /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CDEFA6B41A742417001BC14E /* Main_iPhone.storyboard */; };
 		CDEFA6B81A742417001BC14E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CDEFA6B71A742417001BC14E /* Images.xcassets */; };
 		CDEFA6BB1A742417001BC14E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = CDEFA6B91A742417001BC14E /* LaunchScreen.xib */; };
 		CDEFA6C71A742418001BC14E /* MyCameraTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CDEFA6C61A742418001BC14E /* MyCameraTests.m */; };
@@ -27,14 +29,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CD89B5541A75F11300F983AB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
+		CD89B5571A75F15A00F983AB /* CameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CameraViewController.h; path = Classes/CameraViewController.h; sourceTree = "<group>"; };
+		CD89B5581A75F15A00F983AB /* CameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CameraViewController.m; path = Classes/CameraViewController.m; sourceTree = "<group>"; };
+		CD89B55D1A7612A700F983AB /* CameraSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CameraSettings.h; path = Classes/CameraSettings.h; sourceTree = "<group>"; };
+		CD89B55E1A7612A700F983AB /* CameraSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CameraSettings.m; path = Classes/CameraSettings.m; sourceTree = "<group>"; };
 		CDEFA6A71A742417001BC14E /* MyCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDEFA6AB1A742417001BC14E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CDEFA6AC1A742417001BC14E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		CDEFA6AE1A742417001BC14E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		CDEFA6AF1A742417001BC14E /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		CDEFA6B11A742417001BC14E /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		CDEFA6B21A742417001BC14E /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		CDEFA6B51A742417001BC14E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		CDEFA6B51A742417001BC14E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
 		CDEFA6B71A742417001BC14E /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		CDEFA6BA1A742417001BC14E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		CDEFA6C01A742418001BC14E /* MyCameraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyCameraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -60,6 +65,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CD89B5561A75F12700F983AB /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				CD89B55D1A7612A700F983AB /* CameraSettings.h */,
+				CD89B55E1A7612A700F983AB /* CameraSettings.m */,
+				CD89B5571A75F15A00F983AB /* CameraViewController.h */,
+				CD89B5581A75F15A00F983AB /* CameraViewController.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
 		CDEFA69E1A742417001BC14E = {
 			isa = PBXGroup;
 			children = (
@@ -81,11 +97,11 @@
 		CDEFA6A91A742417001BC14E /* MyCamera */ = {
 			isa = PBXGroup;
 			children = (
+				CD89B5561A75F12700F983AB /* Classes */,
+				CD89B5531A75F11300F983AB /* Main_iPad.storyboard */,
+				CDEFA6B41A742417001BC14E /* Main_iPhone.storyboard */,
 				CDEFA6AE1A742417001BC14E /* AppDelegate.h */,
 				CDEFA6AF1A742417001BC14E /* AppDelegate.m */,
-				CDEFA6B11A742417001BC14E /* ViewController.h */,
-				CDEFA6B21A742417001BC14E /* ViewController.m */,
-				CDEFA6B41A742417001BC14E /* Main.storyboard */,
 				CDEFA6B71A742417001BC14E /* Images.xcassets */,
 				CDEFA6B91A742417001BC14E /* LaunchScreen.xib */,
 				CDEFA6AA1A742417001BC14E /* Supporting Files */,
@@ -199,7 +215,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CDEFA6B61A742417001BC14E /* Main.storyboard in Resources */,
+				CDEFA6B61A742417001BC14E /* Main_iPhone.storyboard in Resources */,
+				CD89B5551A75F11300F983AB /* Main_iPad.storyboard in Resources */,
 				CDEFA6BB1A742417001BC14E /* LaunchScreen.xib in Resources */,
 				CDEFA6B81A742417001BC14E /* Images.xcassets in Resources */,
 			);
@@ -219,7 +236,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CDEFA6B31A742417001BC14E /* ViewController.m in Sources */,
+				CD89B5591A75F15A00F983AB /* CameraViewController.m in Sources */,
+				CD89B55F1A7612A700F983AB /* CameraSettings.m in Sources */,
 				CDEFA6B01A742417001BC14E /* AppDelegate.m in Sources */,
 				CDEFA6AD1A742417001BC14E /* main.m in Sources */,
 			);
@@ -244,12 +262,20 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		CDEFA6B41A742417001BC14E /* Main.storyboard */ = {
+		CD89B5531A75F11300F983AB /* Main_iPad.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CD89B5541A75F11300F983AB /* Base */,
+			);
+			name = Main_iPad.storyboard;
+			sourceTree = "<group>";
+		};
+		CDEFA6B41A742417001BC14E /* Main_iPhone.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				CDEFA6B51A742417001BC14E /* Base */,
 			);
-			name = Main.storyboard;
+			name = Main_iPhone.storyboard;
 			sourceTree = "<group>";
 		};
 		CDEFA6B91A742417001BC14E /* LaunchScreen.xib */ = {
@@ -348,6 +374,7 @@
 				INFOPLIST_FILE = MyCamera/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -358,6 +385,7 @@
 				INFOPLIST_FILE = MyCamera/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -414,6 +442,7 @@
 				CDEFA6CC1A742418001BC14E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CDEFA6CD1A742418001BC14E /* Build configuration list for PBXNativeTarget "MyCameraTests" */ = {
 			isa = XCConfigurationList;
@@ -422,6 +451,7 @@
 				CDEFA6CF1A742418001BC14E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

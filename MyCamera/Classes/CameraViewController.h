@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  CameraViewController.h
 //  MyCamera
 //
 //  Created by Ma, Xiaoxi on 1/24/15.
@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+@interface CameraViewController : UIViewController 
 
 
 @end

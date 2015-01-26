@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--Camera View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="CameraViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sXk-vd-Gd0">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xva-cg-fb9" userLabel="ShutterButton">
+                                <rect key="frame" x="138" y="504" width="44" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="Nio-mb-PZ5"/>
+                                    <constraint firstAttribute="width" constant="44" id="f57-B0-466"/>
+                                </constraints>
+                                <state key="normal">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="shutterButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="rjy-aM-78R"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KgI-ze-kcr" userLabel="FlashButton">
+                                <rect key="frame" x="10" y="10" width="44" height="44"/>
+                                <state key="normal">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="flashButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="pG8-Yv-0qi"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="sXk-vd-Gd0" secondAttribute="trailing" id="5Mb-AN-F0Y"/>
+                            <constraint firstItem="sXk-vd-Gd0" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="topMargin" id="75g-1E-9Vm"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="sXk-vd-Gd0" secondAttribute="bottom" id="Jy2-7n-ABq"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="Xva-cg-fb9" secondAttribute="bottom" constant="20" id="OuU-AS-vxi"/>
+                            <constraint firstItem="sXk-vd-Gd0" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="TJG-0f-2sa"/>
+                            <constraint firstAttribute="centerX" secondItem="Xva-cg-fb9" secondAttribute="centerX" id="scc-hK-drq"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="flashButton" destination="KgI-ze-kcr" id="mR0-VS-tYW"/>
+                        <outlet property="previewView" destination="sXk-vd-Gd0" id="mtD-lA-lab"/>
+                        <outlet property="shutterButton" destination="Xva-cg-fb9" id="9RR-Jw-BvI"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="191.46666666666667" y="285.89333333333332"/>
+        </scene>
+    </scenes>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination" type="retina4"/>
+    </simulatedMetricsContainer>
+</document>
