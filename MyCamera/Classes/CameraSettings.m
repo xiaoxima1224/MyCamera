@@ -10,4 +10,12 @@
 
 @implementation CameraSettings
 
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        self.flashMode = AVCaptureFlashModeAuto;
+    }
+    return self;
+}
 @end

@@ -14,7 +14,6 @@
 #import "CameraSettings.h"
 
 @interface CameraViewController ()
-<AVCaptureFileOutputRecordingDelegate>
 
 @property (weak, nonatomic) IBOutlet UIView *previewView;
 @property (weak, nonatomic) IBOutlet UIButton *shutterButton;
@@ -35,6 +34,8 @@
 @end
 
 
+// TODO: device authorization? what happens if user rejected?
+
 @implementation CameraViewController
 
 - (void)viewDidLoad {
@@ -45,25 +46,22 @@
     
     dispatch_async(self.cameraQueue, ^{
         
-        [self requestDeviceAuthorization];
+        //[self requestDeviceAuthorization];
         
+        // Session Creation
         self.session = [[AVCaptureSession alloc] init];
         self.session.sessionPreset = AVCaptureSessionPresetPhoto;
         
-        self.previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.previewView.layer insertSublayer:self.previewLayer atIndex:0];
-        });
         
-        [self toggleCameraDevice];
+        // AVCaptureDevice and AVCaptureDeviceInput
+        self.currentDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
         NSError* error = nil;
         self.currentDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:self.currentDevice error:&error];
         
         if (error) {
-            NSLog(@"%@", error);
+            NSLog(@"%@ XM", error);
         }
-        
         if ([self.session canAddInput:self.currentDeviceInput]) {
             [self.session addInput:self.currentDeviceInput];
             
@@ -71,18 +69,25 @@
                 [[self.previewLayer connection] setVideoOrientation:(AVCaptureVideoOrientation)[self interfaceOrientation]];
             });
         }
-        
-        // Output
+    
+    
+        // AVCaptureOutPut
         self.imageOutput = [[AVCaptureStillImageOutput alloc] init];
         [self.imageOutput setOutputSettings:@{AVVideoCodecKey : AVVideoCodecJPEG}];
         if ([self.session canAddOutput:self.imageOutput]) {
             [self.session addOutput:self.imageOutput];
         }
         
+        
+        // PreviewLayer
+        self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
+        self.previewLayer.frame = self.view.bounds;
+        self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+        [self.previewView.layer addSublayer:self.previewLayer];
+        
+        [self resetCameraSettings];
+
     });
-    
-    // TODO: temp
-    self.shutterButton.backgroundColor = [UIColor redColor];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -93,8 +98,6 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    
-//    [self becomeFirstResponder];  // To receive shaking event
     
     dispatch_async(self.cameraQueue, ^{
         [self.session startRunning];
@@ -124,7 +127,16 @@
 {
     dispatch_async(self.cameraQueue, ^{
         [[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[[self.previewLayer connection] videoOrientation]];
-        
+        [self.imageOutput captureStillImageAsynchronouslyFromConnection:[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
+            if (imageDataSampleBuffer) {
+                NSData* imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+                UIImage* image = [[UIImage alloc] initWithData:imageData];
+                
+                [[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:[image CGImage] orientation:(ALAssetOrientation)[image imageOrientation] completionBlock:^(NSURL *assetURL, NSError *error) {
+                    // TODO: should i do anything? confirmation?
+                }];
+            }
+        }];
     });
 }
 
@@ -152,6 +164,7 @@
 - (IBAction)flashButtonTapped:(id)sender
 {
     AVCaptureFlashMode newMode = AVCaptureFlashModeAuto;
+    
     switch (self.cameraSettings.flashMode) {
         case AVCaptureFlashModeAuto:
             newMode = AVCaptureFlashModeOff;
@@ -164,35 +177,50 @@
         case AVCaptureFlashModeOn:
             newMode = AVCaptureFlashModeAuto;
             break;
-            
-        default:
-            break;
     }
-    self.cameraSettings.flashMode = newMode;
     
-    [self setFlashMode:self.cameraSettings.flashMode];
+    [self setFlashMode:newMode];
 }
 
 - (void)setFlashMode:(AVCaptureFlashMode)flashMode
 {
-    if ([self.currentDevice hasFlash] && [self.currentDevice isFlashModeSupported:flashMode]) {
-        NSError* error = nil;
-        if ([self.currentDevice lockForConfiguration:&error]) {
-            [self.currentDevice setFlashMode:flashMode];
-            [self.currentDevice unlockForConfiguration];
+    dispatch_async(self.cameraQueue, ^{
+        if ([self.currentDevice hasFlash] && [self.currentDevice isFlashModeSupported:flashMode])
+        {
+            NSError* error = nil;
+            if ([self.currentDevice lockForConfiguration:&error])
+            {
+                [self.currentDevice setFlashMode:flashMode];
+                [self.currentDevice unlockForConfiguration];
+                
+                self.cameraSettings.flashMode = flashMode;
+    
+                NSString* buttonTitle = nil;
+                switch (flashMode) {
+                    case AVCaptureFlashModeAuto:
+                        buttonTitle = @"AUTO";
+                        break;
+                     
+                    case AVCaptureFlashModeOff:
+                        buttonTitle = @"OFF";
+                        break;
+                        
+                    case AVCaptureFlashModeOn:
+                        buttonTitle = @"ON";
+                        break;
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.flashButton setTitle:buttonTitle forState:UIControlStateNormal];
+                });
+            }
+            else {
+                // TODO: error handling
+            }
         }
-        else {
-            
-        }
-    }
+    });
 }
 
 #pragma mark - Shake Motion Handler
-
-//- (BOOL)canBecomeFirstResponder
-//{
-//    return YES;
-//}
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
@@ -207,28 +235,49 @@
 
 - (void)toggleCameraDevice
 {
-    AVCaptureDevicePosition newPosition;
-    if (!self.currentDevice || self.currentDevice.position == AVCaptureDevicePositionFront) {
-        newPosition = AVCaptureDevicePositionBack;
-    }
-    else {
-        newPosition = AVCaptureDevicePositionFront;
-    }
-    
-    AVCaptureDevice* newDevice = nil;
-    NSArray* devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-    for (AVCaptureDevice* device in devices) {
-        if (device.position == newPosition) {
-            newDevice = device;
-            break;
+    dispatch_async(self.cameraQueue, ^{
+        AVCaptureDevicePosition newPosition;
+        if (!self.currentDevice || self.currentDevice.position == AVCaptureDevicePositionFront) {
+            newPosition = AVCaptureDevicePositionBack;
         }
-    }
-    if (!newDevice) {
-        newDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    }
-    self.currentDevice = newDevice;
-    
-    [self resetCameraSettings];
+        else {
+            newPosition = AVCaptureDevicePositionFront;
+        }
+        
+        AVCaptureDevice* newDevice = nil;
+        NSArray* devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+        for (AVCaptureDevice* device in devices) {
+            if (device.position == newPosition) {
+                newDevice = device;
+                break;
+            }
+        }
+        if (!newDevice) {
+            newDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        }
+        
+        NSError* error = nil;
+        AVCaptureDeviceInput* newInput = [AVCaptureDeviceInput deviceInputWithDevice:newDevice error:&error];
+        if (error) {
+            NSLog(@"%@ XM", error);
+        }
+        
+        [self.session beginConfiguration];
+        
+        [self.session removeInput:self.currentDeviceInput];
+        if ([self.session canAddInput:newInput]) {
+            [self.session addInput:newInput];
+            self.currentDeviceInput = newInput;
+            self.currentDevice = newDevice;
+        }
+        else {
+            [self.session addInput:self.currentDeviceInput];
+        }
+        [self.session commitConfiguration];
+        
+        [self resetCameraSettings];
+
+    });
 }
 
 - (void)requestDeviceAuthorization
