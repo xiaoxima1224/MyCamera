@@ -220,6 +220,7 @@
     for (AVCaptureDevice* device in devices) {
         if (device.position == newPosition) {
             newDevice = device;
+            break;
         }
     }
     if (!newDevice) {
