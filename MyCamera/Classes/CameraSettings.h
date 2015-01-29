@@ -15,7 +15,7 @@ typedef NS_ENUM(NSInteger, ShutterTimerSetting)
 {
     kShutterTimerImmediate,
     kShutterTimerTwoSeconds,
-    kShutterTImerTenSeconds
+    kShutterTimerTenSeconds
 };
 
 typedef NS_ENUM(NSInteger, BracketingSetting)
@@ -30,12 +30,13 @@ typedef NS_ENUM(NSInteger, BracketingSetting)
 
 @property (nonatomic) AVCaptureFlashMode flashMode;
 
-@property (nonatomic) ShutterTimerSetting timerSutting;
+@property (nonatomic) ShutterTimerSetting timerSetting;
 
 @property (nonatomic) BracketingSetting bracketingSetting;
 
 @property (nonatomic) BOOL isAutoFocus;
 @property (nonatomic) CGFloat lensPosition;
 
+- (NSTimeInterval)getTimerDelay;
 
 @end

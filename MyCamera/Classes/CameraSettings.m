@@ -15,7 +15,27 @@
     self = [super init];
     if (self) {
         self.flashMode = AVCaptureFlashModeAuto;
+        self.timerSetting = kShutterTimerImmediate;
+        self.bracketingSetting = kBracketingSettingNoBracketing;
     }
     return self;
+}
+
+- (NSTimeInterval)getTimerDelay
+{
+    NSTimeInterval delay = 0;
+    switch (self.timerSetting) {
+        case kShutterTimerImmediate:
+            delay = 0;
+            break;
+        case kShutterTimerTwoSeconds:
+            delay = 2;
+            break;
+            
+        case kShutterTimerTenSeconds:
+            delay = 10;
+            break;
+    }
+    return delay;
 }
 @end

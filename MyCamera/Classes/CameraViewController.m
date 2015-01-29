@@ -18,6 +18,8 @@
 @property (weak, nonatomic) IBOutlet UIView *previewView;
 @property (weak, nonatomic) IBOutlet UIButton *shutterButton;
 @property (weak, nonatomic) IBOutlet UIButton *flashButton;
+@property (weak, nonatomic) IBOutlet UIButton *timerButton;
+@property (weak, nonatomic) IBOutlet UIButton *bracketingButton;
 
 @property (nonatomic, strong) AVCaptureSession* session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer* previewLayer;
@@ -125,19 +127,34 @@
 
 - (IBAction)shutterButtonTapped:(id)sender
 {
-    dispatch_async(self.cameraQueue, ^{
-        [[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[[self.previewLayer connection] videoOrientation]];
-        [self.imageOutput captureStillImageAsynchronouslyFromConnection:[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
-            if (imageDataSampleBuffer) {
-                NSData* imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-                UIImage* image = [[UIImage alloc] initWithData:imageData];
-                
-                [[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:[image CGImage] orientation:(ALAssetOrientation)[image imageOrientation] completionBlock:^(NSURL *assetURL, NSError *error) {
-                    // TODO: should i do anything? confirmation?
-                }];
-            }
-        }];
-    });
+    NSTimeInterval delay = [self.cameraSettings getTimerDelay];
+    
+    self.shutterButton.backgroundColor = [UIColor blueColor];
+    [self performSelector:@selector(takePhoto) withObject:nil afterDelay:delay];
+}
+
+- (void)takePhoto
+{
+    self.shutterButton.backgroundColor = [UIColor redColor];
+    if (self.cameraSettings.bracketingSetting == kBracketingSettingNoBracketing) {
+        dispatch_async(self.cameraQueue, ^{
+            [[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[[self.previewLayer connection] videoOrientation]];
+            [self.imageOutput captureStillImageAsynchronouslyFromConnection:[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
+                if (imageDataSampleBuffer) {
+                    NSData* imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+                    UIImage* image = [[UIImage alloc] initWithData:imageData];
+                    
+                    [[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:[image CGImage] orientation:(ALAssetOrientation)[image imageOrientation] completionBlock:^(NSURL *assetURL, NSError *error) {
+                        // TODO: should i do anything? confirmation?
+                    }];
+                }
+                self.shutterButton.backgroundColor = [UIColor magentaColor];
+            }];
+        });
+    }
+    else {
+        // Bracketing
+    }
 }
 
 - (void)resetCameraSettings
@@ -147,6 +164,8 @@
     
     // TODO: update UI one by one
     [self resetFlashButton];
+    [self resetTimerButton];
+    [self resetBracketingButton];
 }
 
 - (void)resetFlashButton
@@ -158,6 +177,28 @@
     }
     else {
         self.flashButton.enabled = NO;
+        self.cameraSettings.flashMode = AVCaptureFlashModeOff;
+        [self.flashButton setTitle:@"OFF" forState:UIControlStateNormal];
+    }
+}
+
+- (void)resetTimerButton
+{
+    [self setTimer:self.cameraSettings.timerSetting];
+}
+
+- (void)resetBracketingButton
+{
+    // TODO: key-value ovserve maxBracketedCaptureStillImageCount to disable button whenever it becomes unavailable
+    if ([self.imageOutput maxBracketedCaptureStillImageCount] >= 3) {
+        self.bracketingButton.enabled = YES;
+        
+        [self setBracketingSetting:self.cameraSettings.bracketingSetting];
+    }
+    else {
+        self.bracketingButton.enabled = NO;
+        self.cameraSettings.bracketingSetting = kBracketingSettingNoBracketing;
+        [self.bracketingButton setTitle:@"1" forState:UIControlStateNormal];
     }
 }
 
@@ -184,6 +225,10 @@
 
 - (void)setFlashMode:(AVCaptureFlashMode)flashMode
 {
+    if (self.cameraSettings.flashMode != flashMode) {
+        self.cameraSettings.flashMode = flashMode;
+    }
+    
     dispatch_async(self.cameraQueue, ^{
         if ([self.currentDevice hasFlash] && [self.currentDevice isFlashModeSupported:flashMode])
         {
@@ -193,8 +238,6 @@
                 [self.currentDevice setFlashMode:flashMode];
                 [self.currentDevice unlockForConfiguration];
                 
-                self.cameraSettings.flashMode = flashMode;
-    
                 NSString* buttonTitle = nil;
                 switch (flashMode) {
                     case AVCaptureFlashModeAuto:
@@ -219,6 +262,101 @@
         }
     });
 }
+
+- (IBAction)timerButtonTapped:(id)sender
+{
+    ShutterTimerSetting timer = -1;
+    switch (self.cameraSettings.timerSetting) {
+        case kShutterTimerImmediate:
+            timer = kShutterTimerTwoSeconds;
+            break;
+            
+        case kShutterTimerTwoSeconds:
+            timer = kShutterTimerTenSeconds;
+            break;
+            
+        case kShutterTimerTenSeconds:
+            timer = kShutterTimerImmediate;
+            break;
+    }
+    [self setTimer:timer];
+}
+
+- (void)setTimer:(ShutterTimerSetting)timer
+{
+    if (self.cameraSettings.timerSetting != timer) {
+        self.cameraSettings.timerSetting = timer;
+    }
+    
+    NSString* title;
+    switch (self.cameraSettings.timerSetting) {
+        case kShutterTimerImmediate:
+            title = @"NT";
+            break;
+            
+        case kShutterTimerTwoSeconds:
+            title = @"2T";
+            break;
+            
+        case kShutterTimerTenSeconds:
+            title = @"10T";
+            break;
+    }
+    [self.timerButton setTitle:title forState:UIControlStateNormal];
+}
+
+- (IBAction)bracketingButtonTapped:(id)sender
+{
+    BracketingSetting newSetting = kBracketingSettingNoBracketing;
+    switch (self.cameraSettings.bracketingSetting) {
+        case kBracketingSettingNoBracketing:
+            newSetting = kBracketingSettingBurst;
+            break;
+            
+        case kBracketingSettingBurst:
+            newSetting = kBracketingSettingExposure;
+            break;
+            
+        case kBracketingSettingExposure:
+            newSetting = kBracketingSettingShutterSpeed;
+            break;
+            
+        case kBracketingSettingShutterSpeed:
+            newSetting = kBracketingSettingNoBracketing;
+            break;
+    }
+    [self setBracketingSetting:newSetting];
+}
+
+- (void)setBracketingSetting:(BracketingSetting)bracketingSetting
+{
+    if (self.cameraSettings.bracketingSetting != bracketingSetting) {
+        self.cameraSettings.bracketingSetting = bracketingSetting;
+    }
+    
+    NSString* title = nil;
+    switch (bracketingSetting) {
+        case kBracketingSettingNoBracketing:
+            title = @"1";
+            break;
+        
+        case kBracketingSettingBurst:
+            title = @"3B";
+            break;
+            
+        case kBracketingSettingExposure:
+            title = @"3E";
+            break;
+            
+        case kBracketingSettingShutterSpeed:
+            title = @"3S";
+            break;
+    }
+    [self.bracketingButton setTitle:title forState:UIControlStateNormal];
+}
+
+
+
 
 #pragma mark - Shake Motion Handler
 
