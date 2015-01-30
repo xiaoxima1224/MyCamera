@@ -33,6 +33,7 @@ typedef NS_ENUM(NSInteger, BracketingSetting)
 @property (nonatomic) ShutterTimerSetting timerSetting;
 
 @property (nonatomic) BracketingSetting bracketingSetting;
+@property (nonatomic, strong) NSArray* bracketingSettingsArr;
 
 @property (nonatomic) BOOL isAutoFocus;
 @property (nonatomic) CGFloat lensPosition;
