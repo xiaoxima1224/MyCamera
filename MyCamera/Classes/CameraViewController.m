@@ -403,6 +403,13 @@
         self.cameraSettings.bracketingSetting = bracketingSetting;
     }
     
+    // Flash is only supported for single shot, not bracketing
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.flashButton.enabled = (self.cameraSettings.bracketingSetting == kBracketingSettingNoBracketing);
+    });
+    
+    
+    
     dispatch_async(self.cameraQueue, ^{
         NSString* title = nil;
         NSArray* settingsArr = nil;
