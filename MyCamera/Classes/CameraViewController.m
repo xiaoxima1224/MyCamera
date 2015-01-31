@@ -46,6 +46,8 @@
     
     self.cameraQueue = dispatch_queue_create("CameraQueue", DISPATCH_QUEUE_SERIAL);
     
+    self.cameraSettings = [[CameraSettings alloc] init];
+    
     dispatch_async(self.cameraQueue, ^{
         
         //[self requestDeviceAuthorization];
@@ -90,8 +92,6 @@
         self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
         [self.previewView.layer addSublayer:self.previewLayer];
         
-        [self resetCameraSettings];
-
     });
 }
 
@@ -106,6 +106,8 @@
     
     dispatch_async(self.cameraQueue, ^{
         [self.session startRunning];
+        
+        [self resetCameraSettings];
     });
 }
 
@@ -147,19 +149,58 @@
                     [self storeImageToLibrary:imageDataSampleBuffer];
                 }
                 
-                self.shutterButton.backgroundColor = [UIColor magentaColor];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self.shutterButton.backgroundColor = [UIColor magentaColor];
+                });
+                
+            }];
+        });
+    }
+    else if (self.cameraSettings.bracketingSetting == kBracketingSettingShutterSpeed) {
+        // Shutter speed bracketing, need to calculate exposure manually now
+        dispatch_async(self.cameraQueue, ^{
+            CMTime currentShutterSpeed = self.currentDevice.exposureDuration;
+            CMTime minShutterSpeed = self.currentDevice.activeFormat.minExposureDuration;
+            CMTime maxShutterSpeed = self.currentDevice.activeFormat.maxExposureDuration;
+            
+            float currentISO = self.currentDevice.ISO;
+            float minISO = self.currentDevice.activeFormat.minISO;
+            float maxISO = self.currentDevice.activeFormat.maxISO;
+            
+            CMTime slowerShutterSpeed = CMTimeMaximum(CMTimeMultiplyByRatio(currentShutterSpeed, 1, 2), minShutterSpeed);
+            float higherISO = MIN(currentISO * 2, maxISO);
+            AVCaptureManualExposureBracketedStillImageSettings* slowerSetting = [AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:slowerShutterSpeed ISO:higherISO];
+            
+            CMTime fasterShutterSpeed = CMTimeMinimum(CMTimeMultiplyByRatio(currentShutterSpeed, 2, 1), maxShutterSpeed);
+            float lowerISO = MAX(currentISO / 2, minISO);
+            AVCaptureManualExposureBracketedStillImageSettings* fasterSetting = [AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:fasterShutterSpeed ISO:lowerISO];
+            
+            NSArray* settingsArr = @[slowerSetting,
+                                     [AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:currentShutterSpeed ISO:currentISO],
+                                     fasterSetting];
+            
+            [self.imageOutput captureStillImageBracketAsynchronouslyFromConnection:[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] withSettingsArray:settingsArr completionHandler:^(CMSampleBufferRef sampleBuffer, AVCaptureBracketedStillImageSettings *stillImageSettings, NSError *error) {
+                if (sampleBuffer) {
+                    [self storeImageToLibrary:sampleBuffer];
+                }
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self.shutterButton.backgroundColor = [UIColor magentaColor];
+                });
             }];
         });
     }
     else {
-        // Bracketing
+        // Bursting and Exposure bracketing
         dispatch_async(self.cameraQueue, ^{
             [self.imageOutput captureStillImageBracketAsynchronouslyFromConnection:[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] withSettingsArray:self.cameraSettings.bracketingSettingsArr completionHandler:^(CMSampleBufferRef sampleBuffer, AVCaptureBracketedStillImageSettings *stillImageSettings, NSError *error) {
                 if (sampleBuffer) {
                     [self storeImageToLibrary:sampleBuffer];
                 }
                 
-                self.shutterButton.backgroundColor = [UIColor magentaColor];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self.shutterButton.backgroundColor = [UIColor magentaColor];
+                });
             }];
         });
     }
@@ -172,14 +213,12 @@
     
     [[[ALAssetsLibrary alloc] init] writeImageToSavedPhotosAlbum:[image CGImage] orientation:(ALAssetOrientation)[image imageOrientation] completionBlock:^(NSURL *assetURL, NSError *error) {
         // TODO: should i do anything? confirmation?
+        
     }];
 }
 
 - (void)resetCameraSettings
 {
-    // call after toggle camera to clear out any stored settings
-    self.cameraSettings = [[CameraSettings alloc] init];
-    
     // TODO: update UI one by one
     [self resetFlashButton];
     [self resetTimerButton];
@@ -189,14 +228,19 @@
 - (void)resetFlashButton
 {
     if ([self.currentDevice hasFlash]) {
-        self.flashButton.enabled = YES;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.flashButton.enabled = YES;
+        });
         
         [self setFlashMode:self.cameraSettings.flashMode];
     }
     else {
-        self.flashButton.enabled = NO;
-        self.cameraSettings.flashMode = AVCaptureFlashModeOff;
-        [self.flashButton setTitle:@"OFF" forState:UIControlStateNormal];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.flashButton.enabled = NO;
+            [self.flashButton setTitle:@"OFF" forState:UIControlStateNormal];
+        });
+        
+        [self setFlashMode:AVCaptureFlashModeOff];
     }
 }
 
@@ -209,14 +253,19 @@
 {
     // TODO: key-value ovserve maxBracketedCaptureStillImageCount to disable button whenever it becomes unavailable
     if ([self.imageOutput maxBracketedCaptureStillImageCount] >= 3) {
-        self.bracketingButton.enabled = YES;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.bracketingButton.enabled = YES;
+        });
         
         [self setBracketingSetting:self.cameraSettings.bracketingSetting];
     }
     else {
-        self.bracketingButton.enabled = NO;
-        self.cameraSettings.bracketingSetting = kBracketingSettingNoBracketing;
-        [self.bracketingButton setTitle:@"1" forState:UIControlStateNormal];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.bracketingButton.enabled = NO;
+            [self.bracketingButton setTitle:@"1" forState:UIControlStateNormal];
+        });
+        
+        [self setBracketingSetting:kBracketingSettingNoBracketing];
     }
 }
 
@@ -248,7 +297,7 @@
     }
     
     dispatch_async(self.cameraQueue, ^{
-        if ([self.currentDevice hasFlash] && [self.currentDevice isFlashModeSupported:flashMode])
+        if ([self.currentDevice isFlashModeSupported:flashMode])
         {
             NSError* error = nil;
             if ([self.currentDevice lockForConfiguration:&error])
@@ -320,7 +369,9 @@
             title = @"10T";
             break;
     }
-    [self.timerButton setTitle:title forState:UIControlStateNormal];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.timerButton setTitle:title forState:UIControlStateNormal];
+    });
 }
 
 - (IBAction)bracketingButtonTapped:(id)sender
@@ -352,77 +403,87 @@
         self.cameraSettings.bracketingSetting = bracketingSetting;
     }
     
-    NSString* title = nil;
-    NSArray* settingsArr;
-    BOOL shouldPrepareBuffer = YES;
-    
-    switch (bracketingSetting) {
-        case kBracketingSettingNoBracketing:
-        {
-            title = @"1";
-            
-            shouldPrepareBuffer = NO;
-        }
-            break;
+    dispatch_async(self.cameraQueue, ^{
+        NSString* title = nil;
+        NSArray* settingsArr = nil;
+        BOOL shouldPrepareBuffer = YES;
         
-        case kBracketingSettingBurst:
-        {
-            title = @"3B";
-            
-            settingsArr = @[
-                            [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0],
-                            [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0],
-                            [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0]];
-        }
-            break;
-            
-        case kBracketingSettingExposure:
-        {
-            title = @"3E";
-            
-            CGFloat minBias = [self.currentDevice minExposureTargetBias];
-            CGFloat maxBias = [self.currentDevice maxExposureTargetBias];
-            settingsArr = @[
-                            [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:MAX(-1.5, minBias)],
-                            [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0],
-                            [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:MIN(1.5, maxBias)]
-                            ];
-        }
-            break;
-            
-        case kBracketingSettingShutterSpeed:
-        {
-            title = @"3S";
-            
-            CMTime currentShutterSpeed = self.currentDevice.exposureDuration;
-            CMTime minShutterSpeed = self.currentDevice.activeFormat.minExposureDuration;
-            CMTime maxShutterSpeed = self.currentDevice.activeFormat.maxExposureDuration;
-            
-            float currentISO = self.currentDevice.ISO;
-            float minISO = self.currentDevice.activeFormat.minISO;
-            float maxISO = self.currentDevice.activeFormat.maxISO;
-            
-            settingsArr = @[
-                            [AVCaptureManualExposureBracketedStillImageSettings manualExposureSettingsWithExposureDuration:currentShutterSpeed ISO:currentISO]
-                            ];
-            
-        }
-            break;
-    }
-    [self.bracketingButton setTitle:title forState:UIControlStateNormal];
-    
-    if (shouldPrepareBuffer) {
-        self.cameraSettings.bracketingSettingsArr = settingsArr;
-        
-        [self.imageOutput prepareToCaptureStillImageBracketFromConnection:[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] withSettingsArray:settingsArr completionHandler:^(BOOL prepared, NSError *error) {
-            if (error) {
-                // TODO, why error?
-                self.shutterButton.enabled = NO;
+        switch (bracketingSetting) {
+            case kBracketingSettingNoBracketing:
+            {
+                title = @"1";
                 
+                shouldPrepareBuffer = NO;
             }
-        }];
-    }
-    
+                break;
+                
+            case kBracketingSettingBurst:
+            {
+                title = @"3B";
+                
+                settingsArr = @[
+                                [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0],
+                                [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0],
+                                [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0]];
+            }
+                break;
+                
+            case kBracketingSettingExposure:
+            {
+                title = @"3E";
+                
+                CGFloat minBias = [self.currentDevice minExposureTargetBias];
+                CGFloat maxBias = [self.currentDevice maxExposureTargetBias];
+                settingsArr = @[
+                                [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:MAX(-2, minBias)],
+                                [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0],
+                                [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:MIN(2, maxBias)]
+                                ];
+            }
+                break;
+                
+            case kBracketingSettingShutterSpeed:
+            {
+                title = @"3S";
+                
+                // Can't prep here, since I'll be using the Manual bracketedSettings and the lighting condition will change between now and then
+                shouldPrepareBuffer = NO;
+            }
+                break;
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.bracketingButton setTitle:title forState:UIControlStateNormal];
+        });
+        
+        if (shouldPrepareBuffer) {
+            self.cameraSettings.bracketingSettingsArr = settingsArr;
+            
+            [self.imageOutput prepareToCaptureStillImageBracketFromConnection:[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] withSettingsArray:settingsArr completionHandler:^(BOOL prepared, NSError *error) {
+                if (error) {
+                    // TODO, why error?
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        self.shutterButton.enabled = NO;
+                        self.shutterButton.backgroundColor = [UIColor lightGrayColor];
+                    });
+                    
+                    // maybe lock/unlock user interface? dim the screen?
+                }
+            }];
+        }
+        else {
+            [self.imageOutput prepareToCaptureStillImageBracketFromConnection:[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] withSettingsArray:@[[AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0], [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0]] completionHandler:^(BOOL prepared, NSError *error) {
+                // TODO, why error?
+                if (error) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        self.shutterButton.enabled = NO;
+                        self.shutterButton.backgroundColor = [UIColor lightGrayColor];
+                    });
+                    // maybe lock/unlock user interface? dim the screen?
+                }
+            }];
+        }
+    });
 }
 
 
@@ -483,6 +544,8 @@
         }
         [self.session commitConfiguration];
         
+        
+        self.cameraSettings = [[CameraSettings alloc] init];
         [self resetCameraSettings];
 
     });
