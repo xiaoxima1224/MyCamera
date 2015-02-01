@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CD66E74B1A7D81B200A10C34 /* DrawerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD66E74A1A7D81B200A10C34 /* DrawerViewController.m */; };
+		CD66E74D1A7D824600A10C34 /* DrawerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CD66E74C1A7D824600A10C34 /* DrawerViewController.xib */; };
 		CD89B5551A75F11300F983AB /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CD89B5531A75F11300F983AB /* Main_iPad.storyboard */; };
 		CD89B5591A75F15A00F983AB /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD89B5581A75F15A00F983AB /* CameraViewController.m */; };
 		CD89B55F1A7612A700F983AB /* CameraSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = CD89B55E1A7612A700F983AB /* CameraSettings.m */; };
@@ -29,6 +31,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CD66E7491A7D81B200A10C34 /* DrawerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DrawerViewController.h; path = Classes/DrawerViewController.h; sourceTree = "<group>"; };
+		CD66E74A1A7D81B200A10C34 /* DrawerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DrawerViewController.m; path = Classes/DrawerViewController.m; sourceTree = "<group>"; };
+		CD66E74C1A7D824600A10C34 /* DrawerViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DrawerViewController.xib; sourceTree = "<group>"; };
 		CD89B5541A75F11300F983AB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
 		CD89B5571A75F15A00F983AB /* CameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CameraViewController.h; path = Classes/CameraViewController.h; sourceTree = "<group>"; };
 		CD89B5581A75F15A00F983AB /* CameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CameraViewController.m; path = Classes/CameraViewController.m; sourceTree = "<group>"; };
@@ -72,6 +77,9 @@
 				CD89B55E1A7612A700F983AB /* CameraSettings.m */,
 				CD89B5571A75F15A00F983AB /* CameraViewController.h */,
 				CD89B5581A75F15A00F983AB /* CameraViewController.m */,
+				CD66E7491A7D81B200A10C34 /* DrawerViewController.h */,
+				CD66E74A1A7D81B200A10C34 /* DrawerViewController.m */,
+				CD66E74C1A7D824600A10C34 /* DrawerViewController.xib */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -219,6 +227,7 @@
 			files = (
 				CDEFA6B61A742417001BC14E /* Main_iPhone.storyboard in Resources */,
 				CD89B5551A75F11300F983AB /* Main_iPad.storyboard in Resources */,
+				CD66E74D1A7D824600A10C34 /* DrawerViewController.xib in Resources */,
 				CDEFA6BB1A742417001BC14E /* LaunchScreen.xib in Resources */,
 				CDEFA6B81A742417001BC14E /* Images.xcassets in Resources */,
 			);
@@ -241,6 +250,7 @@
 				CD89B5591A75F15A00F983AB /* CameraViewController.m in Sources */,
 				CD89B55F1A7612A700F983AB /* CameraSettings.m in Sources */,
 				CDEFA6B01A742417001BC14E /* AppDelegate.m in Sources */,
+				CD66E74B1A7D81B200A10C34 /* DrawerViewController.m in Sources */,
 				CDEFA6AD1A742417001BC14E /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

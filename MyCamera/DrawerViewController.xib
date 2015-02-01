@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="6254" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DrawerViewController">
+            <connections>
+                <outlet property="buttonSizeRatioConstraint" destination="b4b-RU-2Am" id="sfQ-FX-f3F"/>
+                <outlet property="drawerButton" destination="3Ik-n8-LtD" id="fwO-VO-VBQ"/>
+                <outlet property="drawerContainerView" destination="IH0-3u-Nvn" id="GsQ-VF-XcZ"/>
+                <outlet property="drawerSlider" destination="cVC-5V-dTY" id="zk4-cC-qEa"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="400" height="60"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3Ik-n8-LtD">
+                    <rect key="frame" x="355" y="0.0" width="45" height="60"/>
+                    <color key="backgroundColor" red="0.44237067909340921" green="0.42511320755024784" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" secondItem="3Ik-n8-LtD" secondAttribute="height" multiplier="3:4" id="b4b-RU-2Am"/>
+                    </constraints>
+                    <state key="normal" title="EC">
+                        <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <connections>
+                        <action selector="buttonTapped:" destination="-1" eventType="touchUpInside" id="meX-kO-eTO"/>
+                    </connections>
+                </button>
+                <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IH0-3u-Nvn">
+                    <rect key="frame" x="0.0" y="10" width="355" height="40"/>
+                    <subviews>
+                        <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="cVC-5V-dTY">
+                            <rect key="frame" x="38" y="0.0" width="279" height="41"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <color key="minimumTrackTintColor" white="0.20000000000000001" alpha="1" colorSpace="calibratedWhite"/>
+                            <color key="maximumTrackTintColor" white="0.80000000000000004" alpha="1" colorSpace="calibratedWhite"/>
+                            <color key="thumbTintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </slider>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstItem="cVC-5V-dTY" firstAttribute="leading" secondItem="IH0-3u-Nvn" secondAttribute="leading" constant="40" id="2f6-rA-bZb"/>
+                        <constraint firstItem="cVC-5V-dTY" firstAttribute="top" secondItem="IH0-3u-Nvn" secondAttribute="top" id="jho-LZ-MuL"/>
+                        <constraint firstAttribute="bottom" secondItem="cVC-5V-dTY" secondAttribute="bottom" id="ozI-IT-yRb"/>
+                        <constraint firstAttribute="trailing" secondItem="cVC-5V-dTY" secondAttribute="trailing" constant="40" id="wf3-f9-rTJ"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="0.98761250909999998" green="1" blue="0.2589585385" alpha="1" colorSpace="calibratedRGB"/>
+            <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="3Ik-n8-LtD" firstAttribute="leading" secondItem="IH0-3u-Nvn" secondAttribute="trailing" id="HYQ-fi-MMA"/>
+                <constraint firstAttribute="bottom" secondItem="IH0-3u-Nvn" secondAttribute="bottom" constant="10" id="M4m-x0-Ufk"/>
+                <constraint firstItem="IH0-3u-Nvn" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="Pu3-M9-pWu"/>
+                <constraint firstAttribute="trailing" secondItem="3Ik-n8-LtD" secondAttribute="trailing" id="XfA-0o-Gzq"/>
+                <constraint firstItem="IH0-3u-Nvn" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="10" id="n9t-6p-ByW"/>
+                <constraint firstItem="3Ik-n8-LtD" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="oyh-SF-NVk"/>
+                <constraint firstAttribute="bottom" secondItem="3Ik-n8-LtD" secondAttribute="bottom" id="w4d-tu-dsd"/>
+            </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
+            <nil key="simulatedTopBarMetrics"/>
+            <nil key="simulatedBottomBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="531" y="419"/>
+        </view>
+    </objects>
+</document>

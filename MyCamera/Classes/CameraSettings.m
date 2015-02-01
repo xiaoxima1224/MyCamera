@@ -17,6 +17,7 @@
         self.flashMode = AVCaptureFlashModeAuto;
         self.timerSetting = kShutterTimerImmediate;
         self.bracketingSetting = kBracketingSettingNoBracketing;
+        self.exposureCompensation = 0;
     }
     return self;
 }

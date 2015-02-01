@@ -12,14 +12,23 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 
 #import "CameraSettings.h"
+#import "DrawerViewController.h"
+
+
+static void* exposureCompensationContext = &exposureCompensationContext;
+
 
 @interface CameraViewController ()
 
 @property (weak, nonatomic) IBOutlet UIView *previewView;
 @property (weak, nonatomic) IBOutlet UIButton *shutterButton;
+
 @property (weak, nonatomic) IBOutlet UIButton *flashButton;
 @property (weak, nonatomic) IBOutlet UIButton *timerButton;
 @property (weak, nonatomic) IBOutlet UIButton *bracketingButton;
+
+@property (nonatomic, strong) DrawerViewController* exposureCompensationDrawer;
+
 
 @property (nonatomic, strong) AVCaptureSession* session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer* previewLayer;
@@ -92,7 +101,42 @@
         self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
         [self.previewView.layer addSublayer:self.previewLayer];
         
+        
+        // KVO
+        [self addObserver:self forKeyPath:@"currentDevice.exposureTargetBias" options:NSKeyValueObservingOptionNew context:exposureCompensationContext];
+        
     });
+    
+    
+    self.exposureCompensationDrawer = [[DrawerViewController alloc] init];
+    self.exposureCompensationDrawer.view.transform = CGAffineTransformMakeRotation(M_PI_2);
+    self.exposureCompensationDrawer.view.frame = CGRectMake(0, -350, 60, 400);
+    self.exposureCompensationDrawer.isOpen = NO;
+    
+    [self addChildViewController:self.exposureCompensationDrawer];
+    [self.view addSubview:self.exposureCompensationDrawer.view];
+    [self.exposureCompensationDrawer didMoveToParentViewController:self];
+
+    __weak typeof(self) weakSelf = self;
+    self.exposureCompensationDrawer.sliderValueDidChange = ^(CGFloat newValue) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf setExposureCompensation:newValue];
+    };
+    self.exposureCompensationDrawer.buttonTapped = ^ {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        strongSelf.exposureCompensationDrawer.isOpen = !strongSelf.exposureCompensationDrawer.isOpen;
+        if (strongSelf.exposureCompensationDrawer.isOpen) {
+            [UIView animateWithDuration:0.2f animations:^{
+                strongSelf.exposureCompensationDrawer.view.frame = CGRectMake(0, 0, 60, 400);
+            }];
+            
+        } else {
+            [UIView animateWithDuration:0.2f animations:^{
+                strongSelf.exposureCompensationDrawer.view.frame = CGRectMake(0, -350, 60, 400);
+            }];
+        }
+    };
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -223,6 +267,7 @@
     [self resetFlashButton];
     [self resetTimerButton];
     [self resetBracketingButton];
+    [self resetExposureCompensation];
 }
 
 - (void)resetFlashButton
@@ -267,6 +312,15 @@
         
         [self setBracketingSetting:kBracketingSettingNoBracketing];
     }
+}
+
+- (void)resetExposureCompensation
+{
+    self.exposureCompensationDrawer.drawerSlider.minimumValue = self.currentDevice.minExposureTargetBias;
+    self.exposureCompensationDrawer.drawerSlider.maximumValue = self.currentDevice.maxExposureTargetBias;
+    self.exposureCompensationDrawer.drawerSlider.value = 0;
+    
+    [self setExposureCompensation:self.cameraSettings.exposureCompensation];
 }
 
 - (IBAction)flashButtonTapped:(id)sender
@@ -409,7 +463,6 @@
     });
     
     
-    
     dispatch_async(self.cameraQueue, ^{
         NSString* title = nil;
         NSArray* settingsArr = nil;
@@ -493,7 +546,38 @@
     });
 }
 
-
+- (void)setExposureCompensation:(CGFloat)compensation
+{
+    if (self.cameraSettings.exposureCompensation != compensation) {
+        self.cameraSettings.exposureCompensation = compensation;
+    }
+    
+    dispatch_async(self.cameraQueue, ^{
+        
+        NSError* error;
+        if ([self.currentDevice lockForConfiguration:&error]) {
+            __weak typeof(self) weakSelf = self;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.exposureCompensationDrawer.drawerSlider.enabled = NO;
+            });
+            
+            
+            [self.currentDevice setExposureTargetBias:self.cameraSettings.exposureCompensation completionHandler:^(CMTime syncTime) {
+                // TODO?
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                [strongSelf.currentDevice unlockForConfiguration];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    strongSelf.exposureCompensationDrawer.drawerSlider.enabled = YES;
+                });
+            }];
+        }
+        else {
+            NSLog(@"%@", error);
+        }
+    });
+}
 
 
 #pragma mark - Shake Motion Handler
@@ -580,7 +664,21 @@
     }];
 }
 
+#pragma mark - Key-Value Observing
 
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if (context == exposureCompensationContext)
+    {
+        if ([keyPath isEqualToString:@"currentDevice.exposureTargetBias"]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.exposureCompensationDrawer.drawerSlider.value = [[change objectForKey:@"new"] floatValue]; // TODO: shouldn't need this
+                NSString* valueStr = [NSString stringWithFormat:@"%.2f", [[change objectForKey:@"new"] floatValue]];
+                [self.exposureCompensationDrawer.drawerButton setTitle:valueStr forState:UIControlStateNormal];
+            });
+        }
+    }
+}
 
 @end
 

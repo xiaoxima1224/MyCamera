@@ -38,6 +38,8 @@ typedef NS_ENUM(NSInteger, BracketingSetting)
 @property (nonatomic) BOOL isAutoFocus;
 @property (nonatomic) CGFloat lensPosition;
 
+@property (nonatomic) CGFloat exposureCompensation;
+
 - (NSTimeInterval)getTimerDelay;
 
 @end
