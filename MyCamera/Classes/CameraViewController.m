@@ -28,7 +28,7 @@ static void* exposureCompensationContext = &exposureCompensationContext;
 @property (weak, nonatomic) IBOutlet UIButton *bracketingButton;
 
 @property (nonatomic, strong) DrawerViewController* exposureCompensationDrawer;
-
+@property (nonatomic, strong) DrawerViewController* focusingDrawer;
 
 @property (nonatomic, strong) AVCaptureSession* session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer* previewLayer;
@@ -41,6 +41,8 @@ static void* exposureCompensationContext = &exposureCompensationContext;
 @property (nonatomic) BOOL isDeviceAuthorized;
 
 @property (nonatomic, strong) CameraSettings* cameraSettings;
+
+@property (nonatomic, strong) UITapGestureRecognizer* autoFocusPointTapGR;
 
 @end
 
@@ -99,7 +101,11 @@ static void* exposureCompensationContext = &exposureCompensationContext;
         self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
         self.previewLayer.frame = self.view.bounds;
         self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-        [self.previewView.layer addSublayer:self.previewLayer];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.previewView.layer addSublayer:self.previewLayer];
+        });
+        
+        
         
         
         // KVO
@@ -112,6 +118,7 @@ static void* exposureCompensationContext = &exposureCompensationContext;
     self.exposureCompensationDrawer.view.transform = CGAffineTransformMakeRotation(M_PI_2);
     self.exposureCompensationDrawer.view.frame = CGRectMake(0, -350, 60, 400);
     self.exposureCompensationDrawer.isOpen = NO;
+    [self.exposureCompensationDrawer.drawerButton setTitle:@"EC" forState:UIControlStateNormal];
     
     [self addChildViewController:self.exposureCompensationDrawer];
     [self.view addSubview:self.exposureCompensationDrawer.view];
@@ -124,6 +131,7 @@ static void* exposureCompensationContext = &exposureCompensationContext;
     };
     self.exposureCompensationDrawer.buttonTapped = ^ {
         __strong typeof(weakSelf) strongSelf = weakSelf;
+        
         strongSelf.exposureCompensationDrawer.isOpen = !strongSelf.exposureCompensationDrawer.isOpen;
         if (strongSelf.exposureCompensationDrawer.isOpen) {
             [UIView animateWithDuration:0.2f animations:^{
@@ -136,6 +144,44 @@ static void* exposureCompensationContext = &exposureCompensationContext;
             }];
         }
     };
+    
+    
+    self.focusingDrawer = [[DrawerViewController alloc] init];
+    self.focusingDrawer.view.transform = CGAffineTransformMakeRotation(M_PI_2);
+    self.focusingDrawer.view.frame = CGRectMake(kDeviceWidth-60, -350, 60, 400);
+    self.focusingDrawer.isOpen = NO;
+    [self.focusingDrawer.drawerButton setTitle:@"Focus" forState:UIControlStateNormal];
+    
+    [self addChildViewController:self.focusingDrawer];
+    [self.view addSubview:self.focusingDrawer.view];
+    [self.focusingDrawer didMoveToParentViewController:self];
+    
+    self.focusingDrawer.sliderValueDidChange = ^(CGFloat newValue) {
+        // manually set focus length TODO
+    };
+    self.focusingDrawer.buttonTapped = ^ {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        
+        [strongSelf focusDrawerButtonTapped];
+        return;
+        
+        strongSelf.focusingDrawer.isOpen = !strongSelf.focusingDrawer.isOpen;
+        if (strongSelf.focusingDrawer.isOpen) {
+            [UIView animateWithDuration:0.2f animations:^{
+                strongSelf.focusingDrawer.view.frame = CGRectMake(kDeviceWidth-60, 0, 60, 400);
+            }];
+            
+        } else {
+            [UIView animateWithDuration:0.2f animations:^{
+                strongSelf.focusingDrawer.view.frame = CGRectMake(kDeviceWidth-60, -350, 60, 400);
+            }];
+        }
+    };
+    
+    // Tap to focus
+    self.autoFocusPointTapGR = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onAutoFocusPointTapGR:)];
+    [self.previewView addGestureRecognizer:self.autoFocusPointTapGR];
+    
     
 }
 
@@ -261,6 +307,8 @@ static void* exposureCompensationContext = &exposureCompensationContext;
     }];
 }
 
+#pragma mark - Resets
+
 - (void)resetCameraSettings
 {
     // TODO: update UI one by one
@@ -268,6 +316,7 @@ static void* exposureCompensationContext = &exposureCompensationContext;
     [self resetTimerButton];
     [self resetBracketingButton];
     [self resetExposureCompensation];
+    [self resetFocusMode];
 }
 
 - (void)resetFlashButton
@@ -322,6 +371,20 @@ static void* exposureCompensationContext = &exposureCompensationContext;
     
     [self setExposureCompensation:self.cameraSettings.exposureCompensation];
 }
+
+- (void)resetFocusMode
+{
+    if ([self.currentDevice isFocusModeSupported:AVCaptureFocusModeLocked]) {
+        self.focusingDrawer.drawerButton.enabled = YES;
+        self.focusingDrawer.drawerSlider.enabled = YES;
+    }
+    else {
+        self.focusingDrawer.drawerButton.enabled = NO;
+        self.focusingDrawer.drawerSlider.enabled = NO;
+    }
+}
+
+#pragma mark - Controls
 
 - (IBAction)flashButtonTapped:(id)sender
 {
@@ -579,6 +642,49 @@ static void* exposureCompensationContext = &exposureCompensationContext;
     });
 }
 
+- (void)focusDrawerButtonTapped
+{
+    if (self.focusingDrawer.isOpen) {
+        // Close the drawer if open, leave it manual
+        self.focusingDrawer.isOpen = NO;
+        [UIView animateWithDuration:0.2f animations:^{
+            self.focusingDrawer.view.frame = CGRectMake(kDeviceWidth-60, -350, 60, 400);
+        }];
+    }
+    else {
+        // when closed, if manual, switch to auto
+        if (!self.cameraSettings.isAutoFocus) {
+            
+            [self setAutoFocusMode:YES];
+        }
+        // if closed and auto, switch to manual and open the drawer
+        else {
+            
+            [self setAutoFocusMode:NO];
+            
+            self.focusingDrawer.isOpen = YES;
+            [UIView animateWithDuration:0.2f animations:^{
+                self.focusingDrawer.view.frame = CGRectMake(kDeviceWidth-60, 0, 60, 400);
+            }];
+        }
+    }
+}
+
+- (void)setAutoFocusMode:(BOOL)isAutoFocus
+{
+    self.cameraSettings.isAutoFocus = isAutoFocus;
+    [self.focusingDrawer.drawerButton setTitle:(isAutoFocus ? @"Auto" : @"Manual") forState:UIControlStateNormal];
+    self.autoFocusPointTapGR.enabled = isAutoFocus;
+    
+    // AVCaptureDevice set for real
+}
+
+#pragma mark - UIGestureRecognizer
+
+- (void)onAutoFocusPointTapGR:(UITapGestureRecognizer*)singleTapGR
+{
+    
+}
 
 #pragma mark - Shake Motion Handler
 

@@ -18,6 +18,7 @@
         self.timerSetting = kShutterTimerImmediate;
         self.bracketingSetting = kBracketingSettingNoBracketing;
         self.exposureCompensation = 0;
+        self.isAutoFocus = YES;
     }
     return self;
 }

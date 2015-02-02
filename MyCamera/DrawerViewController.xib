@@ -24,7 +24,7 @@
                     <constraints>
                         <constraint firstAttribute="width" secondItem="3Ik-n8-LtD" secondAttribute="height" multiplier="3:4" id="b4b-RU-2Am"/>
                     </constraints>
-                    <state key="normal" title="EC">
+                    <state key="normal">
                         <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
