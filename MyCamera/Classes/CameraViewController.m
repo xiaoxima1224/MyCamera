@@ -16,6 +16,7 @@
 
 
 static void* exposureCompensationContext = &exposureCompensationContext;
+static void* focusingContext = &focusingContext;
 
 
 @interface CameraViewController ()
@@ -43,6 +44,7 @@ static void* exposureCompensationContext = &exposureCompensationContext;
 @property (nonatomic, strong) CameraSettings* cameraSettings;
 
 @property (nonatomic, strong) UITapGestureRecognizer* autoFocusPointTapGR;
+@property (nonatomic, strong) UIView* focusIndicator;
 
 @end
 
@@ -77,12 +79,9 @@ static void* exposureCompensationContext = &exposureCompensationContext;
         if (error) {
             NSLog(@"%@ XM", error);
         }
+        
         if ([self.session canAddInput:self.currentDeviceInput]) {
             [self.session addInput:self.currentDeviceInput];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[self.previewLayer connection] setVideoOrientation:(AVCaptureVideoOrientation)[self interfaceOrientation]];
-            });
         }
     
     
@@ -103,13 +102,14 @@ static void* exposureCompensationContext = &exposureCompensationContext;
         self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.previewView.layer addSublayer:self.previewLayer];
+            [[self.previewLayer connection] setVideoOrientation:(AVCaptureVideoOrientation)[self interfaceOrientation]];
         });
-        
         
         
         
         // KVO
         [self addObserver:self forKeyPath:@"currentDevice.exposureTargetBias" options:NSKeyValueObservingOptionNew context:exposureCompensationContext];
+        [self addObserver:self forKeyPath:@"currentDevice.adjustingFocus" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:focusingContext];
         
     });
     
@@ -151,13 +151,16 @@ static void* exposureCompensationContext = &exposureCompensationContext;
     self.focusingDrawer.view.frame = CGRectMake(kDeviceWidth-60, -350, 60, 400);
     self.focusingDrawer.isOpen = NO;
     [self.focusingDrawer.drawerButton setTitle:@"Focus" forState:UIControlStateNormal];
+    [self setAutoFocusMode:YES];
     
     [self addChildViewController:self.focusingDrawer];
     [self.view addSubview:self.focusingDrawer.view];
     [self.focusingDrawer didMoveToParentViewController:self];
     
     self.focusingDrawer.sliderValueDidChange = ^(CGFloat newValue) {
-        // manually set focus length TODO
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        
+        [strongSelf setFocusLength:newValue];
     };
     self.focusingDrawer.buttonTapped = ^ {
         __strong typeof(weakSelf) strongSelf = weakSelf;
@@ -663,6 +666,8 @@ static void* exposureCompensationContext = &exposureCompensationContext;
             [self setAutoFocusMode:NO];
             
             self.focusingDrawer.isOpen = YES;
+            self.focusingDrawer.drawerSlider.value = self.currentDevice.lensPosition;
+            
             [UIView animateWithDuration:0.2f animations:^{
                 self.focusingDrawer.view.frame = CGRectMake(kDeviceWidth-60, 0, 60, 400);
             }];
@@ -677,13 +682,65 @@ static void* exposureCompensationContext = &exposureCompensationContext;
     self.autoFocusPointTapGR.enabled = isAutoFocus;
     
     // AVCaptureDevice set for real
+    AVCaptureFocusMode newMode = isAutoFocus ? AVCaptureFocusModeContinuousAutoFocus : AVCaptureFocusModeLocked;
+    dispatch_async(self.cameraQueue, ^{
+        if ([self.currentDevice isFocusModeSupported:newMode]) {
+            NSError* error = nil;
+            if ([self.currentDevice lockForConfiguration:&error]) {
+                [self.currentDevice setFocusMode:newMode];
+                [self.currentDevice unlockForConfiguration];
+            }
+        }
+    });
+}
+
+- (void)setFocusLength:(CGFloat)newValue
+{
+    dispatch_async(self.cameraQueue, ^{
+        NSError* error = nil;
+        if ([self.currentDevice lockForConfiguration:&error]) {
+            __weak typeof(self) weakSelf = self;
+            [self.currentDevice setFocusModeLockedWithLensPosition:newValue completionHandler:^(CMTime syncTime) {
+                __strong typeof(self) strongSelf = weakSelf;
+                [strongSelf.currentDevice unlockForConfiguration];
+            }];
+        }
+    });
 }
 
 #pragma mark - UIGestureRecognizer
 
 - (void)onAutoFocusPointTapGR:(UITapGestureRecognizer*)singleTapGR
 {
+    CGPoint location = [singleTapGR locationInView:self.previewView];
     
+    if (!self.focusIndicator) {
+        self.focusIndicator = [[UIView alloc] init];
+        self.focusIndicator.alpha = 0.3;
+        self.focusIndicator.backgroundColor = UIColorWithRGB(25, 188, 188);
+    }
+    self.focusIndicator.frame = CGRectMake(location.x - 20, location.y - 20, 40, 40);
+    [self.previewView addSubview:self.focusIndicator];
+    
+    
+    if ([self.currentDevice isFocusPointOfInterestSupported]) {
+        dispatch_async(self.cameraQueue, ^{
+            NSError* error = nil;
+            if ([self.currentDevice lockForConfiguration:&error]) {
+                self.currentDevice.focusPointOfInterest = location;
+                self.currentDevice.autoFocusRangeRestriction = AVCaptureAutoFocusRangeRestrictionNone;
+                [self.currentDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+                [self.currentDevice unlockForConfiguration];
+            }
+        });
+    }
+}
+
+- (void)resetFocusIndicator
+{
+    if (self.focusIndicator.superview) {
+        [self.focusIndicator removeFromSuperview];
+    }
 }
 
 #pragma mark - Shake Motion Handler
@@ -782,6 +839,17 @@ static void* exposureCompensationContext = &exposureCompensationContext;
                 NSString* valueStr = [NSString stringWithFormat:@"%.2f", [[change objectForKey:@"new"] floatValue]];
                 [self.exposureCompensationDrawer.drawerButton setTitle:valueStr forState:UIControlStateNormal];
             });
+        }
+    }
+    else if (context == focusingContext)
+    {
+        if ([keyPath isEqualToString:@"currentDevice.adjustingFocus"]) {
+            BOOL isFocusing = [[change objectForKey:@"new"] boolValue];
+            BOOL wasFocusing = [[change objectForKey:@"old"] boolValue];
+            if (wasFocusing && !isFocusing) {
+                // Done focusing, get rid of the focusing indicator
+                [self resetFocusIndicator];
+            }
         }
     }
 }
