@@ -7,11 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CD35E1211A85C33600BC9BD9 /* FlowerPickerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD35E1201A85C33600BC9BD9 /* FlowerPickerViewController.m */; };
 		CD66E74B1A7D81B200A10C34 /* DrawerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD66E74A1A7D81B200A10C34 /* DrawerViewController.m */; };
-		CD66E74D1A7D824600A10C34 /* DrawerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CD66E74C1A7D824600A10C34 /* DrawerViewController.xib */; };
 		CD89B5551A75F11300F983AB /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CD89B5531A75F11300F983AB /* Main_iPad.storyboard */; };
 		CD89B5591A75F15A00F983AB /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD89B5581A75F15A00F983AB /* CameraViewController.m */; };
 		CD89B55F1A7612A700F983AB /* CameraSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = CD89B55E1A7612A700F983AB /* CameraSettings.m */; };
+		CD9B52B41A83211A00CE9660 /* QuarterWheelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9B52B21A83211A00CE9660 /* QuarterWheelViewController.m */; };
+		CD9B52B51A83211A00CE9660 /* QuarterWheelViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CD9B52B31A83211A00CE9660 /* QuarterWheelViewController.xib */; };
+		CD9B52B71A83215900CE9660 /* DrawerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CD9B52B61A83215900CE9660 /* DrawerViewController.xib */; };
 		CDEFA6AD1A742417001BC14E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CDEFA6AC1A742417001BC14E /* main.m */; };
 		CDEFA6B01A742417001BC14E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CDEFA6AF1A742417001BC14E /* AppDelegate.m */; };
 		CDEFA6B61A742417001BC14E /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CDEFA6B41A742417001BC14E /* Main_iPhone.storyboard */; };
@@ -31,9 +34,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CD35E11F1A85C33600BC9BD9 /* FlowerPickerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FlowerPickerViewController.h; path = Classes/FlowerPickerViewController.h; sourceTree = "<group>"; };
+		CD35E1201A85C33600BC9BD9 /* FlowerPickerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FlowerPickerViewController.m; path = Classes/FlowerPickerViewController.m; sourceTree = "<group>"; };
 		CD66E7491A7D81B200A10C34 /* DrawerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DrawerViewController.h; path = Classes/DrawerViewController.h; sourceTree = "<group>"; };
 		CD66E74A1A7D81B200A10C34 /* DrawerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DrawerViewController.m; path = Classes/DrawerViewController.m; sourceTree = "<group>"; };
-		CD66E74C1A7D824600A10C34 /* DrawerViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DrawerViewController.xib; sourceTree = "<group>"; };
 		CD66E74F1A7F2F5F00A10C34 /* PrefixHeader.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		CD66E7501A7F31D500A10C34 /* XXMHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XXMHeader.h; sourceTree = "<group>"; };
 		CD89B5541A75F11300F983AB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
@@ -41,6 +45,10 @@
 		CD89B5581A75F15A00F983AB /* CameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CameraViewController.m; path = Classes/CameraViewController.m; sourceTree = "<group>"; };
 		CD89B55D1A7612A700F983AB /* CameraSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CameraSettings.h; path = Classes/CameraSettings.h; sourceTree = "<group>"; };
 		CD89B55E1A7612A700F983AB /* CameraSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CameraSettings.m; path = Classes/CameraSettings.m; sourceTree = "<group>"; };
+		CD9B52B11A83211A00CE9660 /* QuarterWheelViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuarterWheelViewController.h; path = Classes/QuarterWheelViewController.h; sourceTree = "<group>"; };
+		CD9B52B21A83211A00CE9660 /* QuarterWheelViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = QuarterWheelViewController.m; path = Classes/QuarterWheelViewController.m; sourceTree = "<group>"; };
+		CD9B52B31A83211A00CE9660 /* QuarterWheelViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = QuarterWheelViewController.xib; path = Classes/QuarterWheelViewController.xib; sourceTree = "<group>"; };
+		CD9B52B61A83215900CE9660 /* DrawerViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = DrawerViewController.xib; path = Classes/DrawerViewController.xib; sourceTree = "<group>"; };
 		CDEFA6A71A742417001BC14E /* MyCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDEFA6AB1A742417001BC14E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CDEFA6AC1A742417001BC14E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -81,7 +89,12 @@
 				CD89B5581A75F15A00F983AB /* CameraViewController.m */,
 				CD66E7491A7D81B200A10C34 /* DrawerViewController.h */,
 				CD66E74A1A7D81B200A10C34 /* DrawerViewController.m */,
-				CD66E74C1A7D824600A10C34 /* DrawerViewController.xib */,
+				CD9B52B61A83215900CE9660 /* DrawerViewController.xib */,
+				CD9B52B11A83211A00CE9660 /* QuarterWheelViewController.h */,
+				CD9B52B21A83211A00CE9660 /* QuarterWheelViewController.m */,
+				CD9B52B31A83211A00CE9660 /* QuarterWheelViewController.xib */,
+				CD35E11F1A85C33600BC9BD9 /* FlowerPickerViewController.h */,
+				CD35E1201A85C33600BC9BD9 /* FlowerPickerViewController.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -229,11 +242,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD9B52B71A83215900CE9660 /* DrawerViewController.xib in Resources */,
 				CDEFA6B61A742417001BC14E /* Main_iPhone.storyboard in Resources */,
 				CD89B5551A75F11300F983AB /* Main_iPad.storyboard in Resources */,
-				CD66E74D1A7D824600A10C34 /* DrawerViewController.xib in Resources */,
 				CDEFA6BB1A742417001BC14E /* LaunchScreen.xib in Resources */,
 				CDEFA6B81A742417001BC14E /* Images.xcassets in Resources */,
+				CD9B52B51A83211A00CE9660 /* QuarterWheelViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,7 +267,9 @@
 			files = (
 				CD89B5591A75F15A00F983AB /* CameraViewController.m in Sources */,
 				CD89B55F1A7612A700F983AB /* CameraSettings.m in Sources */,
+				CD35E1211A85C33600BC9BD9 /* FlowerPickerViewController.m in Sources */,
 				CDEFA6B01A742417001BC14E /* AppDelegate.m in Sources */,
+				CD9B52B41A83211A00CE9660 /* QuarterWheelViewController.m in Sources */,
 				CD66E74B1A7D81B200A10C34 /* DrawerViewController.m in Sources */,
 				CDEFA6AD1A742417001BC14E /* main.m in Sources */,
 			);

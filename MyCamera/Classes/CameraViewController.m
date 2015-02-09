@@ -13,7 +13,7 @@
 
 #import "CameraSettings.h"
 #import "DrawerViewController.h"
-
+#import "QuarterWheelViewController.h"
 
 static void* exposureCompensationContext = &exposureCompensationContext;
 static void* focusingContext = &focusingContext;
@@ -180,6 +180,14 @@ static void* focusingContext = &focusingContext;
             }];
         }
     };
+    
+    
+    QuarterWheelViewController* wheel = [[QuarterWheelViewController alloc] init];
+    wheel.view.frame = CGRectMake(kDeviceWidth-120, kDeviceHeight-60, 120, 60);
+    [self addChildViewController:wheel];
+    [self.view addSubview:wheel.view];
+    [wheel didMoveToParentViewController:self];
+    
     
     // Tap to focus
     self.autoFocusPointTapGR = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onAutoFocusPointTapGR:)];
