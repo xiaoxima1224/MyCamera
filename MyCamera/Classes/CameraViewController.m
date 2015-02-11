@@ -14,22 +14,32 @@
 #import "CameraSettings.h"
 #import "DrawerViewController.h"
 #import "QuarterWheelViewController.h"
+#import "FlowerPickerViewController.h"
+
 
 static void* exposureCompensationContext = &exposureCompensationContext;
 static void* focusingContext = &focusingContext;
 
 
-@interface CameraViewController ()
+@interface CameraViewController () <FlowerPickerViewControllerDataSource, FlowerPickerViewControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UIView *previewView;
 @property (weak, nonatomic) IBOutlet UIButton *shutterButton;
 
-@property (weak, nonatomic) IBOutlet UIButton *flashButton;
+//@property (weak, nonatomic) IBOutlet UIButton *flashButton;
 @property (weak, nonatomic) IBOutlet UIButton *timerButton;
 @property (weak, nonatomic) IBOutlet UIButton *bracketingButton;
 
+@property (nonatomic, weak) FlowerPickerViewController* timerPickerViewController;
+@property (nonatomic, weak) FlowerPickerViewController* flashPickerViewController;
+
+@property (nonatomic, strong) NSArray* timerPetalsDataArr;
+@property (nonatomic, strong) NSArray* flashPetalsDataArr;
+
 @property (nonatomic, strong) DrawerViewController* exposureCompensationDrawer;
 @property (nonatomic, strong) DrawerViewController* focusingDrawer;
+
+
 
 @property (nonatomic, strong) AVCaptureSession* session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer* previewLayer;
@@ -52,6 +62,27 @@ static void* focusingContext = &focusingContext;
 // TODO: device authorization? what happens if user rejected?
 
 @implementation CameraViewController
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    UIViewController* childViewController = segue.destinationViewController;
+    if ([segue.identifier isEqualToString:@"timerPickerSegue"]) {
+        self.timerPickerViewController = (FlowerPickerViewController*)childViewController;
+        self.timerPickerViewController.dataSource = self;
+        self.timerPickerViewController.delegate = self;
+        self.timerPickerViewController.style = kFlowerPickerViewControllerStyle120Degrees;
+        self.timerPickerViewController.preferredPetalRadius = 80;
+    }
+    else if ([segue.identifier isEqualToString:@"flashPickerSegue"]) {
+        self.flashPickerViewController = (FlowerPickerViewController*)childViewController;
+        self.flashPickerViewController.dataSource = self;
+        self.flashPickerViewController.delegate = self;
+        self.flashPickerViewController.style = kFlowerPickerViewControllerStyle120Degrees;
+        self.flashPickerViewController.preferredPetalRadius = 80;
+    }
+    
+    
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -113,6 +144,8 @@ static void* focusingContext = &focusingContext;
         
     });
     
+    self.timerPetalsDataArr = @[@"2S", @"10S",@"0"];
+    self.flashPetalsDataArr = @[@"Off", @"Auto", @"On"];
     
     self.exposureCompensationDrawer = [[DrawerViewController alloc] init];
     self.exposureCompensationDrawer.view.transform = CGAffineTransformMakeRotation(M_PI_2);
@@ -323,26 +356,26 @@ static void* focusingContext = &focusingContext;
 - (void)resetCameraSettings
 {
     // TODO: update UI one by one
-    [self resetFlashButton];
+    [self resetFlashPicker];
     [self resetTimerButton];
     [self resetBracketingButton];
     [self resetExposureCompensation];
     [self resetFocusMode];
 }
 
-- (void)resetFlashButton
+- (void)resetFlashPicker
 {
     if ([self.currentDevice hasFlash]) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.flashButton.enabled = YES;
+            self.flashPickerViewController.enabled = YES;
         });
         
         [self setFlashMode:self.cameraSettings.flashMode];
     }
     else {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.flashButton.enabled = NO;
-            [self.flashButton setTitle:@"OFF" forState:UIControlStateNormal];
+            self.flashPickerViewController.enabled = NO;
+            [self flowerPicker:self.flashPickerViewController didSelectPetalAtIndex:0];
         });
         
         [self setFlashMode:AVCaptureFlashModeOff];
@@ -447,9 +480,6 @@ static void* focusingContext = &focusingContext;
                         buttonTitle = @"ON";
                         break;
                 }
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.flashButton setTitle:buttonTitle forState:UIControlStateNormal];
-                });
             }
             else {
                 // TODO: error handling
@@ -861,6 +891,90 @@ static void* focusingContext = &focusingContext;
         }
     }
 }
+
+#pragma mark - FlowerPickerViewControllerDelegate & FlowerPickerViewControllerDataSource
+
+- (void)flowerPicker:(FlowerPickerViewController *)flowerPicker didSelectPetalAtIndex:(NSInteger)index
+{
+    NSString* newCarpelStr;
+    if (flowerPicker == self.timerPickerViewController) {
+        newCarpelStr = self.timerPetalsDataArr[index];
+        
+//        AVCaptureFlashMode newMode = AVCaptureFlashModeAuto;
+//        
+//        switch (self.cameraSettings.flashMode) {
+//            case AVCaptureFlashModeAuto:
+//                newMode = AVCaptureFlashModeOff;
+//                break;
+//                
+//            case AVCaptureFlashModeOff:
+//                newMode = AVCaptureFlashModeOn;
+//                break;
+//                
+//            case AVCaptureFlashModeOn:
+//                newMode = AVCaptureFlashModeAuto;
+//                break;
+//        }
+//        
+//        [self setFlashMode:newMode];
+    }
+    else if (flowerPicker == self.flashPickerViewController) {
+        newCarpelStr = self.flashPetalsDataArr[index];
+    }
+    ((UILabel*)[((FlowerCarpelView*)flowerPicker.carpelView) viewWithTag:1]).text = newCarpelStr;
+}
+
+- (FlowerCarpelView*)carpelViewForFlowerPicker:(FlowerPickerViewController *)flowerPicker
+{
+    FlowerCarpelView* carpel = [[FlowerCarpelView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+    UILabel* label = [[UILabel alloc] initWithFrame:carpel.bounds];
+    label.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    label.text = @"Carpel";
+    label.tag = 1;
+    carpel.backgroundColor = [UIColor whiteColor];
+    [carpel.contentView addSubview:label];
+    
+    return carpel;
+}
+
+- (FlowerPetalView*)petalViewForFlowerPicker:(FlowerPickerViewController *)flowerPicker atIndex:(NSInteger)index
+{
+    FlowerPetalView* pedal = [[FlowerPetalView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
+    UILabel* label = [[UILabel alloc] initWithFrame:pedal.bounds];
+    label.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    [pedal.contentView addSubview:label];
+    pedal.backgroundColor = [UIColor whiteColor];
+    
+    NSString* newPetalStr;
+    if (flowerPicker == self.timerPickerViewController) {
+        newPetalStr = self.timerPetalsDataArr[index];
+        
+    }
+    else if (flowerPicker == self.flashPickerViewController) {
+        newPetalStr = self.flashPetalsDataArr[index];
+    }
+    label.text = newPetalStr;
+    
+    return pedal;
+}
+
+- (NSInteger)numberOfPetals:(FlowerPickerViewController *)flowerPicker
+{
+    if (flowerPicker == self.timerPickerViewController) {
+        return [self.timerPetalsDataArr count];
+        
+    }
+    else if (flowerPicker == self.flashPickerViewController) {
+        return [self.flashPetalsDataArr count];
+    }
+    return 0;
+}
+
+- (CGSize)sizeOfPetalForFlowerPicker:(FlowerPickerViewController *)flowerPicker
+{
+    return CGSizeMake(35, 35);
+}
+
 
 @end
 

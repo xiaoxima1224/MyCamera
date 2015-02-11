@@ -15,6 +15,7 @@
 		CD9B52B41A83211A00CE9660 /* QuarterWheelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD9B52B21A83211A00CE9660 /* QuarterWheelViewController.m */; };
 		CD9B52B51A83211A00CE9660 /* QuarterWheelViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CD9B52B31A83211A00CE9660 /* QuarterWheelViewController.xib */; };
 		CD9B52B71A83215900CE9660 /* DrawerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CD9B52B61A83215900CE9660 /* DrawerViewController.xib */; };
+		CDA87F6C1A8AFFAE00A1F146 /* UIView+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = CDA87F6B1A8AFFAE00A1F146 /* UIView+Extension.m */; };
 		CDEFA6AD1A742417001BC14E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CDEFA6AC1A742417001BC14E /* main.m */; };
 		CDEFA6B01A742417001BC14E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CDEFA6AF1A742417001BC14E /* AppDelegate.m */; };
 		CDEFA6B61A742417001BC14E /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CDEFA6B41A742417001BC14E /* Main_iPhone.storyboard */; };
@@ -49,6 +50,8 @@
 		CD9B52B21A83211A00CE9660 /* QuarterWheelViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = QuarterWheelViewController.m; path = Classes/QuarterWheelViewController.m; sourceTree = "<group>"; };
 		CD9B52B31A83211A00CE9660 /* QuarterWheelViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = QuarterWheelViewController.xib; path = Classes/QuarterWheelViewController.xib; sourceTree = "<group>"; };
 		CD9B52B61A83215900CE9660 /* DrawerViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = DrawerViewController.xib; path = Classes/DrawerViewController.xib; sourceTree = "<group>"; };
+		CDA87F6A1A8AFFAE00A1F146 /* UIView+Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+Extension.h"; path = "Classes/UIView+Extension.h"; sourceTree = "<group>"; };
+		CDA87F6B1A8AFFAE00A1F146 /* UIView+Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+Extension.m"; path = "Classes/UIView+Extension.m"; sourceTree = "<group>"; };
 		CDEFA6A71A742417001BC14E /* MyCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDEFA6AB1A742417001BC14E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CDEFA6AC1A742417001BC14E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -83,6 +86,7 @@
 		CD89B5561A75F12700F983AB /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				CDA87F691A8AFF7D00A1F146 /* Helpers */,
 				CD89B55D1A7612A700F983AB /* CameraSettings.h */,
 				CD89B55E1A7612A700F983AB /* CameraSettings.m */,
 				CD89B5571A75F15A00F983AB /* CameraViewController.h */,
@@ -97,6 +101,15 @@
 				CD35E1201A85C33600BC9BD9 /* FlowerPickerViewController.m */,
 			);
 			name = Classes;
+			sourceTree = "<group>";
+		};
+		CDA87F691A8AFF7D00A1F146 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				CDA87F6A1A8AFFAE00A1F146 /* UIView+Extension.h */,
+				CDA87F6B1A8AFFAE00A1F146 /* UIView+Extension.m */,
+			);
+			name = Helpers;
 			sourceTree = "<group>";
 		};
 		CDEFA69E1A742417001BC14E = {
@@ -271,6 +284,7 @@
 				CDEFA6B01A742417001BC14E /* AppDelegate.m in Sources */,
 				CD9B52B41A83211A00CE9660 /* QuarterWheelViewController.m in Sources */,
 				CD66E74B1A7D81B200A10C34 /* DrawerViewController.m in Sources */,
+				CDA87F6C1A8AFFAE00A1F146 /* UIView+Extension.m in Sources */,
 				CDEFA6AD1A742417001BC14E /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
