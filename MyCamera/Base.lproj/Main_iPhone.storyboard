@@ -55,19 +55,31 @@
                                     <segue destination="oFz-cH-Avu" kind="embed" identifier="flashPickerSegue" id="1hX-du-kJb"/>
                                 </connections>
                             </containerView>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EWL-wr-pzF">
+                                <rect key="frame" x="74" y="40" width="44" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="bIu-14-gdP"/>
+                                    <constraint firstAttribute="width" constant="44" id="yLn-rm-bqt"/>
+                                </constraints>
+                                <connections>
+                                    <segue destination="z26-cu-nZp" kind="embed" identifier="bracketingPickerSegue" id="o1O-Ij-zNe"/>
+                                </connections>
+                            </containerView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="sXk-vd-Gd0" secondAttribute="trailing" id="5Mb-AN-F0Y"/>
                             <constraint firstItem="sXk-vd-Gd0" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="topMargin" id="75g-1E-9Vm"/>
                             <constraint firstItem="34L-3k-ytX" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="20" id="EBy-Ah-0d1"/>
+                            <constraint firstItem="34L-3k-ytX" firstAttribute="top" secondItem="EWL-wr-pzF" secondAttribute="top" id="EtW-XE-aaX"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="sXk-vd-Gd0" secondAttribute="bottom" id="Jy2-7n-ABq"/>
                             <constraint firstItem="8dD-Co-07j" firstAttribute="leading" secondItem="34L-3k-ytX" secondAttribute="trailing" constant="20" id="Md3-rg-u0u"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="Xva-cg-fb9" secondAttribute="bottom" constant="20" id="OuU-AS-vxi"/>
                             <constraint firstItem="sXk-vd-Gd0" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="TJG-0f-2sa"/>
                             <constraint firstAttribute="centerX" secondItem="34L-3k-ytX" secondAttribute="centerX" id="erp-fn-bLM"/>
-                            <constraint firstItem="8dD-Co-07j" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="20" id="j3F-JH-diw"/>
+                            <constraint firstItem="34L-3k-ytX" firstAttribute="leading" secondItem="EWL-wr-pzF" secondAttribute="trailing" constant="20" id="f6b-qL-Zni"/>
                             <constraint firstAttribute="centerX" secondItem="Xva-cg-fb9" secondAttribute="centerX" id="scc-hK-drq"/>
+                            <constraint firstItem="8dD-Co-07j" firstAttribute="top" secondItem="34L-3k-ytX" secondAttribute="top" id="yNl-bh-HmR"/>
                         </constraints>
                     </view>
                     <connections>
@@ -82,7 +94,7 @@
         <!--timerPicker-->
         <scene sceneID="5ml-Lp-2Gu">
             <objects>
-                <viewController storyboardIdentifier="timerPicker" autoresizesArchivedViewToFullSize="NO" title="timerPicker" automaticallyAdjustsScrollViewInsets="NO" modalPresentationStyle="currentContext" useStoryboardIdentifierAsRestorationIdentifier="YES" id="V0M-ss-UdC" customClass="FlowerPickerViewController" sceneMemberID="viewController">
+                <viewController autoresizesArchivedViewToFullSize="NO" automaticallyAdjustsScrollViewInsets="NO" modalPresentationStyle="currentContext" id="V0M-ss-UdC" userLabel="timerPicker" customClass="FlowerPickerViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Lpp-5h-QVp"/>
                         <viewControllerLayoutGuide type="bottom" id="fDY-sV-b7J"/>
@@ -101,12 +113,12 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8hL-iY-a3l" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="507" y="380"/>
+            <point key="canvasLocation" x="507" y="496"/>
         </scene>
-        <!--Flower Picker View Controller-->
+        <!--flashPicker-->
         <scene sceneID="gFq-et-Ppu">
             <objects>
-                <viewController automaticallyAdjustsScrollViewInsets="NO" id="oFz-cH-Avu" customClass="FlowerPickerViewController" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="oFz-cH-Avu" userLabel="flashPicker" customClass="FlowerPickerViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="KvF-Qm-EoV"/>
                         <viewControllerLayoutGuide type="bottom" id="A8G-S1-po2"/>
@@ -120,7 +132,26 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZzG-O2-Fwa" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="507" y="502"/>
+            <point key="canvasLocation" x="507" y="633"/>
+        </scene>
+        <!--bracketingPicker-->
+        <scene sceneID="TOw-8Z-FrH">
+            <objects>
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="z26-cu-nZp" userLabel="bracketingPicker" customClass="FlowerPickerViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Cmu-VV-baH"/>
+                        <viewControllerLayoutGuide type="bottom" id="FIB-9m-POD"/>
+                    </layoutGuides>
+                    <view key="view" opaque="NO" multipleTouchEnabled="YES" contentMode="center" id="rNd-E8-qzA">
+                        <rect key="frame" x="0.0" y="0.0" width="44" height="44"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <toolbarItems/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="k7q-qB-kxJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="507" y="342"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

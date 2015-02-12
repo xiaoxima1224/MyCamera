@@ -23,6 +23,8 @@
 @property (nonatomic, strong) NSArray* petalViewsArr;
 @property (nonatomic) CGFloat radius;
 
+@property (nonatomic, strong) UIView* greyOverlayView;
+
 @end
 
 @implementation FlowerPickerViewController
@@ -222,8 +224,21 @@
     _enabled = enabled;
     
     self.view.userInteractionEnabled = enabled;
-    // TODO, draw a grey overlay
-    self.view.backgroundColor = [UIColor lightGrayColor];
+    
+    if (enabled) {
+        if (self.greyOverlayView.superview) {
+            [self.greyOverlayView removeFromSuperview];
+        }
+    }
+    else {
+        if (!self.greyOverlayView) {
+            self.greyOverlayView = [[UIView alloc] initWithFrame:self.view.bounds];
+            self.greyOverlayView.alpha = 0.7f;
+            self.greyOverlayView.backgroundColor = [UIColor lightGrayColor];
+        }
+        [self.view addSubview:self.greyOverlayView];
+        [self.view bringSubviewToFront:self.greyOverlayView];
+    }
 }
 
 @end

@@ -13,17 +13,17 @@
 
 typedef NS_ENUM(NSInteger, ShutterTimerSetting)
 {
-    kShutterTimerImmediate,
-    kShutterTimerTwoSeconds,
-    kShutterTimerTenSeconds
+    kShutterTimerImmediate = 0,
+    kShutterTimerTwoSeconds = 1,
+    kShutterTimerTenSeconds = 2
 };
 
 typedef NS_ENUM(NSInteger, BracketingSetting)
 {
-    kBracketingSettingNoBracketing,
-    kBracketingSettingBurst,
-    kBracketingSettingExposure,
-    kBracketingSettingShutterSpeed,
+    kBracketingSettingNoBracketing = 0,
+    kBracketingSettingBurst = 1,
+    kBracketingSettingExposure = 2,
+    kBracketingSettingShutterSpeed = 3,
 };
 
 @interface CameraSettings : NSObject
@@ -41,5 +41,18 @@ typedef NS_ENUM(NSInteger, BracketingSetting)
 @property (nonatomic) CGFloat exposureCompensation;
 
 - (NSTimeInterval)getTimerDelay;
+
+
+- (ShutterTimerSetting)timerSettingAtIndex:(NSInteger)index;
+- (NSString*)timerSettingTitleAtIndex:(NSInteger)index;
+- (NSInteger)numberOfTimerSettings;
+
+- (AVCaptureFlashMode)flashModeAtIndex:(NSInteger)index;
+- (NSString*)flashModeTitleAtIndex:(NSInteger)index;
+- (NSInteger)numberOfFlashModes;
+
+- (BracketingSetting)bracketingSettingAtIndex:(NSInteger)index;
+- (NSString*)bracketingSettingTitleAtIndex:(NSInteger)index;
+- (NSInteger)numberOfBracketingSettings;
 
 @end

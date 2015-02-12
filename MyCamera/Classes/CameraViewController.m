@@ -26,15 +26,10 @@ static void* focusingContext = &focusingContext;
 @property (weak, nonatomic) IBOutlet UIView *previewView;
 @property (weak, nonatomic) IBOutlet UIButton *shutterButton;
 
-//@property (weak, nonatomic) IBOutlet UIButton *flashButton;
-@property (weak, nonatomic) IBOutlet UIButton *timerButton;
-@property (weak, nonatomic) IBOutlet UIButton *bracketingButton;
 
 @property (nonatomic, weak) FlowerPickerViewController* timerPickerViewController;
 @property (nonatomic, weak) FlowerPickerViewController* flashPickerViewController;
-
-@property (nonatomic, strong) NSArray* timerPetalsDataArr;
-@property (nonatomic, strong) NSArray* flashPetalsDataArr;
+@property (nonatomic, weak) FlowerPickerViewController* bracketingPickerViewController;
 
 @property (nonatomic, strong) DrawerViewController* exposureCompensationDrawer;
 @property (nonatomic, strong) DrawerViewController* focusingDrawer;
@@ -49,7 +44,7 @@ static void* focusingContext = &focusingContext;
 
 @property (nonatomic, strong) dispatch_queue_t cameraQueue;
 
-@property (nonatomic) BOOL isDeviceAuthorized;
+@property (nonatomic) BOOL isDeviceAuthorized;  //?
 
 @property (nonatomic, strong) CameraSettings* cameraSettings;
 
@@ -71,16 +66,22 @@ static void* focusingContext = &focusingContext;
         self.timerPickerViewController.dataSource = self;
         self.timerPickerViewController.delegate = self;
         self.timerPickerViewController.style = kFlowerPickerViewControllerStyle120Degrees;
-        self.timerPickerViewController.preferredPetalRadius = 80;
+        self.timerPickerViewController.preferredPetalRadius = 100;
     }
     else if ([segue.identifier isEqualToString:@"flashPickerSegue"]) {
         self.flashPickerViewController = (FlowerPickerViewController*)childViewController;
         self.flashPickerViewController.dataSource = self;
         self.flashPickerViewController.delegate = self;
         self.flashPickerViewController.style = kFlowerPickerViewControllerStyle120Degrees;
-        self.flashPickerViewController.preferredPetalRadius = 80;
+        self.flashPickerViewController.preferredPetalRadius = 100;
     }
-    
+    else if ([segue.identifier isEqualToString:@"bracketingPickerSegue"]) {
+        self.bracketingPickerViewController = (FlowerPickerViewController*)childViewController;
+        self.bracketingPickerViewController.dataSource = self;
+        self.bracketingPickerViewController.delegate = self;
+        self.bracketingPickerViewController.style = kFlowerPickerViewControllerStyle120Degrees;
+        self.bracketingPickerViewController.preferredPetalRadius = 100;
+    }
     
 }
 
@@ -114,7 +115,7 @@ static void* focusingContext = &focusingContext;
         if ([self.session canAddInput:self.currentDeviceInput]) {
             [self.session addInput:self.currentDeviceInput];
         }
-    
+        
     
         // AVCaptureOutPut
         self.imageOutput = [[AVCaptureStillImageOutput alloc] init];
@@ -144,9 +145,8 @@ static void* focusingContext = &focusingContext;
         
     });
     
-    self.timerPetalsDataArr = @[@"2S", @"10S",@"0"];
-    self.flashPetalsDataArr = @[@"Off", @"Auto", @"On"];
     
+    // Exposure slider
     self.exposureCompensationDrawer = [[DrawerViewController alloc] init];
     self.exposureCompensationDrawer.view.transform = CGAffineTransformMakeRotation(M_PI_2);
     self.exposureCompensationDrawer.view.frame = CGRectMake(0, -350, 60, 400);
@@ -179,6 +179,7 @@ static void* focusingContext = &focusingContext;
     };
     
     
+    // Auto/Manual focusing and focus point slider
     self.focusingDrawer = [[DrawerViewController alloc] init];
     self.focusingDrawer.view.transform = CGAffineTransformMakeRotation(M_PI_2);
     self.focusingDrawer.view.frame = CGRectMake(kDeviceWidth-60, -350, 60, 400);
@@ -215,6 +216,7 @@ static void* focusingContext = &focusingContext;
     };
     
     
+    // TODO
     QuarterWheelViewController* wheel = [[QuarterWheelViewController alloc] init];
     wheel.view.frame = CGRectMake(kDeviceWidth-120, kDeviceHeight-60, 120, 60);
     [self addChildViewController:wheel];
@@ -263,6 +265,8 @@ static void* focusingContext = &focusingContext;
 {
     return YES;
 }
+
+#pragma mark - Shutter button functionality
 
 - (IBAction)shutterButtonTapped:(id)sender
 {
@@ -356,56 +360,26 @@ static void* focusingContext = &focusingContext;
 - (void)resetCameraSettings
 {
     // TODO: update UI one by one
-    [self resetFlashPicker];
-    [self resetTimerButton];
-    [self resetBracketingButton];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        // Reset flashPicker
+        self.flashPickerViewController.enabled = [self.currentDevice hasFlash];
+        [self flowerPicker:self.flashPickerViewController didSelectPetalAtIndex:0];
+        
+        // Reset timerPicker
+        [self flowerPicker:self.timerPickerViewController didSelectPetalAtIndex:0];
+        
+        // Reset bracketingPicker
+        // TODO: key-value ovserve maxBracketedCaptureStillImageCount to disable button whenever it becomes unavailable
+        self.bracketingPickerViewController.enabled = ([self.imageOutput maxBracketedCaptureStillImageCount] >= 3);
+        [self flowerPicker:self.bracketingPickerViewController didSelectPetalAtIndex:0];
+    });
+
     [self resetExposureCompensation];
     [self resetFocusMode];
 }
 
-- (void)resetFlashPicker
-{
-    if ([self.currentDevice hasFlash]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.flashPickerViewController.enabled = YES;
-        });
-        
-        [self setFlashMode:self.cameraSettings.flashMode];
-    }
-    else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.flashPickerViewController.enabled = NO;
-            [self flowerPicker:self.flashPickerViewController didSelectPetalAtIndex:0];
-        });
-        
-        [self setFlashMode:AVCaptureFlashModeOff];
-    }
-}
-
-- (void)resetTimerButton
-{
-    [self setTimer:self.cameraSettings.timerSetting];
-}
-
-- (void)resetBracketingButton
-{
-    // TODO: key-value ovserve maxBracketedCaptureStillImageCount to disable button whenever it becomes unavailable
-    if ([self.imageOutput maxBracketedCaptureStillImageCount] >= 3) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.bracketingButton.enabled = YES;
-        });
-        
-        [self setBracketingSetting:self.cameraSettings.bracketingSetting];
-    }
-    else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.bracketingButton.enabled = NO;
-            [self.bracketingButton setTitle:@"1" forState:UIControlStateNormal];
-        });
-        
-        [self setBracketingSetting:kBracketingSettingNoBracketing];
-    }
-}
 
 - (void)resetExposureCompensation
 {
@@ -430,26 +404,6 @@ static void* focusingContext = &focusingContext;
 
 #pragma mark - Controls
 
-- (IBAction)flashButtonTapped:(id)sender
-{
-    AVCaptureFlashMode newMode = AVCaptureFlashModeAuto;
-    
-    switch (self.cameraSettings.flashMode) {
-        case AVCaptureFlashModeAuto:
-            newMode = AVCaptureFlashModeOff;
-            break;
-            
-        case AVCaptureFlashModeOff:
-            newMode = AVCaptureFlashModeOn;
-            break;
-            
-        case AVCaptureFlashModeOn:
-            newMode = AVCaptureFlashModeAuto;
-            break;
-    }
-    
-    [self setFlashMode:newMode];
-}
 
 - (void)setFlashMode:(AVCaptureFlashMode)flashMode
 {
@@ -465,21 +419,6 @@ static void* focusingContext = &focusingContext;
             {
                 [self.currentDevice setFlashMode:flashMode];
                 [self.currentDevice unlockForConfiguration];
-                
-                NSString* buttonTitle = nil;
-                switch (flashMode) {
-                    case AVCaptureFlashModeAuto:
-                        buttonTitle = @"AUTO";
-                        break;
-                     
-                    case AVCaptureFlashModeOff:
-                        buttonTitle = @"OFF";
-                        break;
-                        
-                    case AVCaptureFlashModeOn:
-                        buttonTitle = @"ON";
-                        break;
-                }
             }
             else {
                 // TODO: error handling
@@ -488,71 +427,11 @@ static void* focusingContext = &focusingContext;
     });
 }
 
-- (IBAction)timerButtonTapped:(id)sender
-{
-    ShutterTimerSetting timer = -1;
-    switch (self.cameraSettings.timerSetting) {
-        case kShutterTimerImmediate:
-            timer = kShutterTimerTwoSeconds;
-            break;
-            
-        case kShutterTimerTwoSeconds:
-            timer = kShutterTimerTenSeconds;
-            break;
-            
-        case kShutterTimerTenSeconds:
-            timer = kShutterTimerImmediate;
-            break;
-    }
-    [self setTimer:timer];
-}
-
 - (void)setTimer:(ShutterTimerSetting)timer
 {
     if (self.cameraSettings.timerSetting != timer) {
         self.cameraSettings.timerSetting = timer;
     }
-    
-    NSString* title;
-    switch (self.cameraSettings.timerSetting) {
-        case kShutterTimerImmediate:
-            title = @"NT";
-            break;
-            
-        case kShutterTimerTwoSeconds:
-            title = @"2T";
-            break;
-            
-        case kShutterTimerTenSeconds:
-            title = @"10T";
-            break;
-    }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.timerButton setTitle:title forState:UIControlStateNormal];
-    });
-}
-
-- (IBAction)bracketingButtonTapped:(id)sender
-{
-    BracketingSetting newSetting = kBracketingSettingNoBracketing;
-    switch (self.cameraSettings.bracketingSetting) {
-        case kBracketingSettingNoBracketing:
-            newSetting = kBracketingSettingBurst;
-            break;
-            
-        case kBracketingSettingBurst:
-            newSetting = kBracketingSettingExposure;
-            break;
-            
-        case kBracketingSettingExposure:
-            newSetting = kBracketingSettingShutterSpeed;
-            break;
-            
-        case kBracketingSettingShutterSpeed:
-            newSetting = kBracketingSettingNoBracketing;
-            break;
-    }
-    [self setBracketingSetting:newSetting];
 }
 
 - (void)setBracketingSetting:(BracketingSetting)bracketingSetting
@@ -563,28 +442,24 @@ static void* focusingContext = &focusingContext;
     
     // Flash is only supported for single shot, not bracketing
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.flashButton.enabled = (self.cameraSettings.bracketingSetting == kBracketingSettingNoBracketing);
+        self.flashPickerViewController.enabled = (self.cameraSettings.bracketingSetting == kBracketingSettingNoBracketing);
     });
     
     
     dispatch_async(self.cameraQueue, ^{
-        NSString* title = nil;
+        
         NSArray* settingsArr = nil;
         BOOL shouldPrepareBuffer = YES;
         
         switch (bracketingSetting) {
             case kBracketingSettingNoBracketing:
             {
-                title = @"1";
-                
                 shouldPrepareBuffer = NO;
             }
                 break;
                 
             case kBracketingSettingBurst:
             {
-                title = @"3B";
-                
                 settingsArr = @[
                                 [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0],
                                 [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0],
@@ -594,8 +469,6 @@ static void* focusingContext = &focusingContext;
                 
             case kBracketingSettingExposure:
             {
-                title = @"3E";
-                
                 CGFloat minBias = [self.currentDevice minExposureTargetBias];
                 CGFloat maxBias = [self.currentDevice maxExposureTargetBias];
                 settingsArr = @[
@@ -608,45 +481,32 @@ static void* focusingContext = &focusingContext;
                 
             case kBracketingSettingShutterSpeed:
             {
-                title = @"3S";
-                
                 // Can't prep here, since I'll be using the Manual bracketedSettings and the lighting condition will change between now and then
                 shouldPrepareBuffer = NO;
             }
                 break;
         }
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.bracketingButton setTitle:title forState:UIControlStateNormal];
-        });
-        
-        if (shouldPrepareBuffer) {
+        if (shouldPrepareBuffer && settingsArr) {
             self.cameraSettings.bracketingSettingsArr = settingsArr;
-            
-            [self.imageOutput prepareToCaptureStillImageBracketFromConnection:[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] withSettingsArray:settingsArr completionHandler:^(BOOL prepared, NSError *error) {
-                if (error) {
-                    // TODO, why error?
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        self.shutterButton.enabled = NO;
-                        self.shutterButton.backgroundColor = [UIColor lightGrayColor];
-                    });
-                    
-                    // maybe lock/unlock user interface? dim the screen?
-                }
-            }];
         }
         else {
-            [self.imageOutput prepareToCaptureStillImageBracketFromConnection:[self.imageOutput connectionWithMediaType:AVMediaTypeVideo] withSettingsArray:@[[AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0], [AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0]] completionHandler:^(BOOL prepared, NSError *error) {
-                // TODO, why error?
-                if (error) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        self.shutterButton.enabled = NO;
-                        self.shutterButton.backgroundColor = [UIColor lightGrayColor];
-                    });
-                    // maybe lock/unlock user interface? dim the screen?
-                }
-            }];
+            settingsArr = @[[AVCaptureAutoExposureBracketedStillImageSettings autoExposureSettingsWithExposureTargetBias:0]];
         }
+        
+        [self.imageOutput prepareToCaptureStillImageBracketFromConnection:[self.imageOutput connectionWithMediaType:AVMediaTypeVideo]
+                                                            withSettingsArray:settingsArr
+                                                            completionHandler:^(BOOL prepared, NSError *error) {
+                                                                if (error) {
+                                                                    // TODO, why error?
+                                                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                                                        self.shutterButton.enabled = NO;
+                                                                        self.shutterButton.backgroundColor = [UIColor lightGrayColor];
+                                                                    });
+                                                                    
+                                                                    // maybe lock/unlock user interface? dim the screen?
+                                                                }
+                                                            }];
     });
 }
 
@@ -896,32 +756,28 @@ static void* focusingContext = &focusingContext;
 
 - (void)flowerPicker:(FlowerPickerViewController *)flowerPicker didSelectPetalAtIndex:(NSInteger)index
 {
-    NSString* newCarpelStr;
-    if (flowerPicker == self.timerPickerViewController) {
-        newCarpelStr = self.timerPetalsDataArr[index];
+    if (flowerPicker == self.flashPickerViewController) {
         
-//        AVCaptureFlashMode newMode = AVCaptureFlashModeAuto;
-//        
-//        switch (self.cameraSettings.flashMode) {
-//            case AVCaptureFlashModeAuto:
-//                newMode = AVCaptureFlashModeOff;
-//                break;
-//                
-//            case AVCaptureFlashModeOff:
-//                newMode = AVCaptureFlashModeOn;
-//                break;
-//                
-//            case AVCaptureFlashModeOn:
-//                newMode = AVCaptureFlashModeAuto;
-//                break;
-//        }
-//        
-//        [self setFlashMode:newMode];
+        AVCaptureFlashMode newMode = [self.cameraSettings flashModeAtIndex:index];
+        [self setFlashMode:newMode];
+        
+        ((UILabel*)[((FlowerCarpelView*)flowerPicker.carpelView) viewWithTag:1]).text = [self.cameraSettings flashModeTitleAtIndex:index];
+        
     }
-    else if (flowerPicker == self.flashPickerViewController) {
-        newCarpelStr = self.flashPetalsDataArr[index];
+    else if (flowerPicker == self.timerPickerViewController) {
+        
+        ShutterTimerSetting timer = [self.cameraSettings timerSettingAtIndex:index];
+        [self setTimer:timer];
+        
+        ((UILabel*)[((FlowerCarpelView*)flowerPicker.carpelView) viewWithTag:1]).text = [self.cameraSettings timerSettingTitleAtIndex:index];
     }
-    ((UILabel*)[((FlowerCarpelView*)flowerPicker.carpelView) viewWithTag:1]).text = newCarpelStr;
+    else if (flowerPicker == self.bracketingPickerViewController) {
+        
+        BracketingSetting bracketingSetting = [self.cameraSettings bracketingSettingAtIndex:index];
+        [self setBracketingSetting:bracketingSetting];
+        
+        ((UILabel*)[((FlowerCarpelView*)flowerPicker.carpelView) viewWithTag:1]).text = [self.cameraSettings bracketingSettingTitleAtIndex:index];
+    }
 }
 
 - (FlowerCarpelView*)carpelViewForFlowerPicker:(FlowerPickerViewController *)flowerPicker
@@ -929,7 +785,7 @@ static void* focusingContext = &focusingContext;
     FlowerCarpelView* carpel = [[FlowerCarpelView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
     UILabel* label = [[UILabel alloc] initWithFrame:carpel.bounds];
     label.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-    label.text = @"Carpel";
+    label.text = @" ";
     label.tag = 1;
     carpel.backgroundColor = [UIColor whiteColor];
     [carpel.contentView addSubview:label];
@@ -947,11 +803,13 @@ static void* focusingContext = &focusingContext;
     
     NSString* newPetalStr;
     if (flowerPicker == self.timerPickerViewController) {
-        newPetalStr = self.timerPetalsDataArr[index];
-        
+        newPetalStr = [self.cameraSettings timerSettingTitleAtIndex:index];
     }
     else if (flowerPicker == self.flashPickerViewController) {
-        newPetalStr = self.flashPetalsDataArr[index];
+        newPetalStr = [self.cameraSettings flashModeTitleAtIndex:index];
+    }
+    else if (flowerPicker == self.bracketingPickerViewController) {
+        newPetalStr = [self.cameraSettings bracketingSettingTitleAtIndex:index];
     }
     label.text = newPetalStr;
     
@@ -961,11 +819,13 @@ static void* focusingContext = &focusingContext;
 - (NSInteger)numberOfPetals:(FlowerPickerViewController *)flowerPicker
 {
     if (flowerPicker == self.timerPickerViewController) {
-        return [self.timerPetalsDataArr count];
-        
+        return [self.cameraSettings numberOfTimerSettings];   
     }
     else if (flowerPicker == self.flashPickerViewController) {
-        return [self.flashPetalsDataArr count];
+        return [self.cameraSettings numberOfFlashModes];
+    }
+    else if (flowerPicker == self.bracketingPickerViewController) {
+        return [self.cameraSettings numberOfBracketingSettings];
     }
     return 0;
 }
